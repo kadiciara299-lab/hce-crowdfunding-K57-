@@ -1,42 +1,72 @@
-# ECO2432 Web3 Starter
+# HCE Student Crowdfund — Nền tảng Gây quỹ Dự án Sinh viên có Hoàn tiền
 
-Kho khởi đầu dùng xuyên suốt 15 bài thực hành.
+> **Một câu định vị sản phẩm:**  
+> *"Nhóm xây dựng Nền tảng gây quỹ dự án sinh viên có hoàn tiền tự động (HCE Student Crowdfund) cho cộng đồng sinh viên và các câu lạc bộ Trường Đại học Kinh tế - Đại học Huế (HCE) nhằm huy động vốn minh bạch cho các đề tài nghiên cứu khoa học, dự án khởi nghiệp và cam kết tự động hoàn trả 100% tiền cho người ủng hộ nếu dự án không đạt mục tiêu tài chính trước hạn chót."*
 
-## Bắt đầu (thay cho bước "Fork kho" trong sổ tay)
+---
 
-Sổ tay ghi "Fork kho `hce-web3-starter`". Học kỳ này kho được phát dạng tệp nén, nên làm như sau:
+## 👥 1. Thông tin Nhóm Sinh viên thực hiện (K57 Kinh Tế Số - HCE)
 
-1. Giải nén thư mục này vào máy, mở bằng Antigravity.
-2. Đọc `AGENTS.md` trước khi yêu cầu công cụ AI sinh mã.
-3. Sao chép `SPEC.md` và `AI_JOURNAL.md` cho từng bài.
-4. Chỉ dùng ví thử nghiệm và mạng Sepolia; không dùng khóa ví có tiền thật.
+Dự án thuộc học phần: **Tiền điện tử & Hợp đồng thông minh (ECO2432)**  
+Mã chủ đề đồ án: **Chủ đề 5 — Gây quỹ có hoàn tiền (Refundable Crowdfunding)**  
+Kho mã nguồn chính thức: [`https://github.com/kadiciara299-lab/hce-crowdfunding-K57-.git`](https://github.com/kadiciara299-lab/hce-crowdfunding-K57-)
 
-Đưa lên GitHub (làm khi đã có tài khoản; cần trước khi nộp Lab 1):
+| STT | Họ và tên | Mã sinh viên | Vai chính Lab 8–11 | Vai chính Lab 12–15 | GitHub Username |
+| :-: | :--- | :---: | :--- | :--- | :--- |
+| 1 | **Hoàng Mạnh Tường** *(Lead)* | **23K4300042** | Đặc tả nghiệp vụ (BA) & Thiết kế Kinh tế *(kiêm QA)* | Hợp đồng thông minh & Audit *(kiêm Web3 Lead)* | `@manhtuong-k57` |
+| 2 | **Nguyễn Nguyên Phương** | **23K4300034** | Hợp đồng thông minh *(kiêm Giao diện Web/Gas)* | Đặc tả & Thuyết trình *(kiêm Red Team Security)* | `@nguyenphuong-k57` |
 
-```bash
-git init -b main
-git add .
-git commit -m "chore: thiet lap moi truong lam viec"
-git remote add origin https://github.com/<tai-khoan>/<ten-repo>.git   # repo tạo TRỐNG trên GitHub
-git push -u origin main
+---
+
+## 📂 2. Cấu trúc Kho mã nguồn Chuẩn (Theo Phần B.6 Sổ tay)
+
+```text
+hce-crowdfunding-K57-/
+├── README.md                      # Giới thiệu sản phẩm, thành viên và hướng dẫn chạy
+├── AGENTS.md                      # Quy ước dự án bắt buộc cho công cụ AI
+├── docs/
+│   ├── PROJECT_PLAN.md            # Kế hoạch dự án, phân vai xoay vòng và 7 mốc bắt buộc
+│   ├── SPEC.md                    # Bản đặc tả nghiệp vụ v0.1 có hiệu lực
+│   ├── ECONOMIC_RULES.md          # Quy tắc dòng tiền, 4 rào cản chống lạm dụng & phản biện
+│   ├── AI_JOURNAL.md              # Nhật ký làm việc với AI và các lỗi nghiêm trọng đã sửa
+│   └── PRESENTATION_PLAN.md       # Kịch bản báo cáo và demo 5 phút phân công từng giây
+├── contracts/
+│   ├── training/                  # Hợp đồng mẫu học tập (TimeLockVault, VaultBuggy,...)
+│   └── project/
+│       └── ProjectCore.sol        # Hợp đồng thông minh cốt lõi của sản phẩm nhóm
+├── test/                          # Ca kiểm thử tự động của sản phẩm nhóm
+├── web/
+│   └── index.html                 # Giao diện Web3 DApp kết nối MetaMask
+└── evidence/
+    └── lab-08/                    # Minh chứng commit, kiểm thử và biên bản từng lab
 ```
 
-Lab 8 (repo nhóm): một thành viên tạo repo trống mới, đưa nội dung thư mục này lên theo đúng các
-lệnh trên, rồi mời các thành viên khác làm collaborator.
+---
 
-## Cấu trúc
+## 🚀 3. Hướng dẫn Chạy và Thử nghiệm
 
-- `contracts/training/`: hợp đồng mẫu dùng ở Lab 9, 10, 11 và 13
-  (`TimeLockVault`, `VaultBuggy`, `ClassPoint`, `VulnerableBank`).
-- `contracts/lab04/ClubTokens.sol`: ba token dùng cho Lab 4.
-- `web/index.html`: giao diện mẫu dùng ở Lab 15.
-- `prompt_templates.md`: mẫu câu lệnh có yêu cầu và tiêu chí kiểm chứng rõ ràng.
+### 3.1. Biên dịch và Triển khai Hợp đồng trên Remix IDE
+1. Truy cập [Remix Ethereum IDE](https://remix.ethereum.org).
+2. Tải tệp `contracts/project/ProjectCore.sol` lên thư mục làm việc của Remix.
+3. Trong tab **Solidity Compiler**, chọn phiên bản `0.8.20` trở lên và bấm **Compile ProjectCore.sol**.
+4. Trong tab **Deploy & Run Transactions**:
+   - Chọn môi trường: **Remix VM (Cancun / Shanghai)** để thử nghiệm tức thì miễn phí, hoặc **Injected Provider - MetaMask** để triển khai lên mạng thử nghiệm Sepolia.
+   - Điền tham số Constructor:
+     - `_goalInWei`: Ví dụ `1000000000000000000` (1 ETH).
+     - `_durationSeconds`: Ví dụ `259200` (3 ngày tính bằng giây).
+     - `_minContributionInWei`: Ví dụ `1000000000000000` (0.001 ETH).
+   - Bấm **Deploy**.
 
-Các hợp đồng có chữ `Buggy`, `Vulnerable` hoặc cảnh báo trong mã đều chứa lỗi có chủ đích.
+### 3.2. Chạy Giao diện DApp Cục bộ
+- Mở tệp `web/index.html` trực tiếp bằng trình duyệt Google Chrome hoặc Microsoft Edge đã cài đặt tiện ích MetaMask.
+- Kết nối ví và chuyển mạng sang **Sepolia Testnet**.
 
-## Chạy hợp đồng
+---
 
-- Cách chính: mở Remix IDE (`https://remix.ethereum.org`), tạo tệp, dán mã. Remix tự tải thư viện
-  `@openzeppelin/...`, không cần cài gì.
-- Nếu Antigravity gạch đỏ dòng `import "@openzeppelin/..."`: đó là do máy chưa có thư viện, mã
-  không sai. Muốn hết gạch đỏ thì cài Node.js rồi chạy `npm install` trong thư mục này (không bắt buộc).
+## 📜 4. Cam kết Liêm chính và Quy ước Mã nguồn
+
+- Toàn bộ mã nguồn tuân thủ nghiêm ngặt chỉ dẫn tại [`AGENTS.md`](./AGENTS.md):
+  - Áp dụng nguyên tắc **Checks - Effects - Interactions** bảo vệ chống tấn công tái nhập.
+  - Sử dụng lệnh chuyển tiền `call{value: ...}("")`, tuyệt đối không dùng `transfer`.
+  - Khai báo lỗi tùy biến (`custom errors`) thay cho chuỗi ký tự lỗi dài trong `require`.
+  - Đơn vị tính toán số học trên chuỗi luôn dùng `wei` và điểm cơ bản `basis points` ($1\% = 100 \text{ bps}$).
