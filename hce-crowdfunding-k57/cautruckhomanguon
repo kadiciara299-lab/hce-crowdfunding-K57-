@@ -1,0 +1,16 @@
+hce-crowdfunding-k58/
+├── README.md                     # Giới thiệu sản phẩm và hướng dẫn chạy
+├── AGENTS.md                     # Quy ước chuẩn cho AI (Solidity ^0.8.20, CEI, OpenZeppelin v5)
+├── docs/
+│   ├── PROJECT_PLAN.md           # Kế hoạch dự án, phân vai, các mốc Lab 8-15
+│   ├── SPEC.md                   # Đặc tả yêu cầu nghiệp vụ v0.1
+│   ├── ECONOMIC_RULES.md         # Quy tắc dòng tiền, trần hạn mức, quản trị và rủi ro
+│   └── AI_JOURNAL.md             # Nhật ký phản biện kinh tế cùng AI
+├── contracts/
+│   └── project/
+│       └── ProjectCore.sol       # Mã nguồn hợp đồng lõi (triển khai ở Lab 9)
+├── test/
+├── web/
+│   └── index.html
+└── evidence/
+    └── lab-08/  
