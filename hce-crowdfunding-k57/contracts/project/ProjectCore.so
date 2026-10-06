@@ -1,0 +1,135 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+/// @title ProjectCore - Cổng Gây Quỹ Sinh Viên Có Hoàn Tiền (Refundable Crowdfunding Vault)
+/// @notice Thuộc đồ án môn ECO2432. Cài đặt mô hình All-or-Nothing với bảo vệ CEI.
+contract ProjectCore {
+    // --- Trạng thái chiến dịch ---
+    enum State {
+        Active,      // Đang diễn ra trong thời hạn và chưa đạt chỉ tiêu
+        Successful,  // Đã đạt mục tiêu gọi vốn
+        Failed       // Đã hết thời hạn mà chưa đạt mục tiêu
+    }
+
+    // --- Các thông số cốt lõi (Bất biến) ---
+    address payable public immutable creator;
+    uint256 public immutable goal;
+    uint256 public immutable deadline;
+
+    // --- Trạng thái gây quỹ ---
+    uint256 public totalRaised;
+    bool public fundsClaimed;
+    mapping(address => uint256) public contributions;
+
+    // --- Giới hạn kinh tế ---
+    uint256 public constant MAX_DURATION = 30 days;
+
+    // --- Sự kiện (Events) ---
+    event Contributed(address indexed backer, uint256 amount, uint256 totalRaised);
+    event FundsClaimed(address indexed creator, uint256 amount);
+    event RefundClaimed(address indexed backer, uint256 amount);
+
+    // --- Lỗi tùy biến (Custom Errors) ---
+    error InvalidGoal();
+    error InvalidDuration();
+    error InvalidCreator();
+    error ZeroContribution();
+    error CampaignNotActive();
+    error NotCreator();
+    error GoalNotReached();
+    error FundsAlreadyClaimed();
+    error RefundNotAllowed();
+    error NoFundsToRefund();
+    error TransferFailed();
+
+    /// @notice Khởi tạo chiến dịch gây quỹ
+    /// @param _goal Mục tiêu gọi vốn (wei)
+    /// @param _duration Thời lượng gây quỹ (giây), tối đa 30 ngày
+    /// @param _creator Địa chỉ nhận tiền giải ngân của chủ dự án
+    constructor(uint256 _goal, uint256 _duration, address payable _creator) {
+        if (_goal == 0) revert InvalidGoal();
+        if (_duration == 0 || _duration > MAX_DURATION) revert InvalidDuration();
+        if (_creator == address(0)) revert InvalidCreator();
+
+        goal = _goal;
+        deadline = block.timestamp + _duration;
+        creator = _creator;
+    }
+
+    /// @notice Đóng góp ETH vào chiến dịch
+    function contribute() external payable {
+        // 1. Checks
+        if (msg.value == 0) revert ZeroContribution();
+        if (block.timestamp >= deadline || totalRaised >= goal) revert CampaignNotActive();
+
+        // 2. Effects
+        contributions[msg.sender] += msg.value;
+        totalRaised += msg.value;
+        emit Contributed(msg.sender, msg.value, totalRaised);
+    }
+
+    /// @notice Chủ dự án rút toàn bộ quỹ khi chiến dịch thành công
+    function claimFunds() public {
+        // 1. Checks
+        if (msg.sender != creator) revert NotCreator();
+        if (fundsClaimed) revert FundsAlreadyClaimed();
+        if (totalRaised < goal) revert GoalNotReached();
+
+        uint256 amount = address(this).balance;
+
+        // 2. Effects
+        fundsClaimed = true;
+        emit FundsClaimed(creator, amount);
+
+        // 3. Interactions
+        (bool ok, ) = creator.call{value: amount}("");
+        if (!ok) revert TransferFailed();
+    }
+
+    /// @notice Hàm bí danh hỗ trợ tên gọi theo ECONOMIC_RULES
+    function withdrawFunds() external {
+        claimFunds();
+    }
+
+    /// @notice Người ủng hộ tự rút lại tiền khi chiến dịch thất bại sau hạn chót
+    function refund() public {
+        // 1. Checks
+        if (block.timestamp < deadline) revert RefundNotAllowed();
+        if (totalRaised >= goal) revert RefundNotAllowed();
+
+        uint256 amount = contributions[msg.sender];
+        if (amount == 0) revert NoFundsToRefund();
+
+        // 2. Effects: Xóa số dư về 0 trước khi tương tác chuyển tiền nhằm triệt tiêu Reentrancy
+        contributions[msg.sender] = 0;
+        emit RefundClaimed(msg.sender, amount);
+
+        // 3. Interactions: Chuyển ETH bằng lệnh call và kiểm tra kết quả
+        (bool ok, ) = payable(msg.sender).call{value: amount}("");
+        if (!ok) revert TransferFailed();
+    }
+
+    /// @notice Hàm bí danh hỗ trợ tên gọi theo ECONOMIC_RULES
+    function claimRefund() external {
+        refund();
+    }
+
+    /// @notice Kiểm tra trạng thái hiện tại của chiến dịch
+    function state() public view returns (State) {
+        if (totalRaised >= goal) {
+            return State.Successful;
+        }
+        if (block.timestamp >= deadline) {
+            return State.Failed;
+        }
+        return State.Active;
+    }
+
+    /// @notice Thời gian còn lại của chiến dịch tính theo giây
+    function timeLeft() external view returns (uint256) {
+        if (block.timestamp >= deadline) {
+            return 0;
+        }
+        return deadline - block.timestamp;
+    }
+}
