@@ -13,7 +13,7 @@ Kho mã nguồn chính thức: [`https://github.com/kadiciara299-lab/hce-crowdfu
 
 | STT | Họ và tên | Mã sinh viên | Vai chính Lab 8–11 | Vai chính Lab 12–15 | GitHub Username |
 | :-: | :--- | :---: | :--- | :--- | :--- |
-| 1 | **Hoàng Mạnh Tường** *(Lead)* | **23K4300042** | Đặc tả nghiệp vụ (BA) & Thiết kế Kinh tế *(kiêm QA)* | Hợp đồng thông minh & Audit *(kiêm Web3 Lead)* | `@manhtuong-k57` |
+| 1 | **Hoàng Mạnh Tường** *(Lead)* | **23K4300042** | Đặc tả nghiệp vụ (BA) & Thiết kế Kinh tế *(kiêm QA)* | Hợp đồng thông minh & Audit *(kiêm Web3 Lead)* | `23k4300042-lang` |
 | 2 | **Nguyễn Nguyên Phương** | **23K4300034** | Hợp đồng thông minh *(kiêm Giao diện Web/Gas)* | Đặc tả & Thuyết trình *(kiêm Red Team Security)* | `@nguyenphuong-k57` |
 
 ---
