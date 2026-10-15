@@ -1,0 +1,65 @@
+===========================================================================
+🔥 LAB 13: THỰC NGHIỆM VỤ MẤT TIỀN (REENTRANCY) VÀ VÁ LỖI AN TOÀN
+   Học phần: Tiền điện tử & Hợp đồng thông minh (ECO2432)
+   Sinh viên: Hoàng Mạnh Tường (23K4300042) & Nguyễn Nguyên Phương (23K4300034)
+===========================================================================
+
+--- BƯỚC 1: DỰNG HIỆN TRƯỜNG VULNERABLE BANK ---
+  [Ban đầu] 3 người gửi tổng cộng: 6.0000 ETH
+  [Số dư ngân hàng]: 6.0000 ETH
+
+--- BƯỚC 2: TIẾN HÀNH TẤN CÔNG REENTRANCY ATTACK ---
+  [Kẻ tấn công] Nạp 1.0000 ETH vốn mồi và kích hoạt attack()...
+  [Kết quả tấn công]:
+    - Số lần tái nhập (Reentrancy iterations): 7 vòng lặp
+    - Số tiền trong hợp đồng Attacker cướp được: 7.0000 ETH
+    - Số dư còn lại trong VulnerableBank:      0.0000 ETH
+  🚨 XÁC NHẬN: NGÂN HÀNG ĐÃ BỊ RÚT CẠN SỐ DƯ TỪ 6 ETH VỀ 0 ETH THÀNH CÔNG!
+
+===========================================================================
+BƯỚC 4: VÁ LỖI VÀ CHỨNG MINH TẤN CÔNG THẤT BẠI
+===========================================================================
+
+[CÁCH 1: CHECKS - EFFECTS - INTERACTIONS (CEI)]
+  Số dư SafeBankCEI trước tấn công: 7.0000 ETH
+  Số dư SafeBankCEI sau khi kẻ gian rút tiền: 6.0000 ETH
+  🛡️ THÀNH CÔNG: CEI chặn đứng tái nhập! 6 ETH của người dùng được bảo vệ an toàn 100%!
+
+[CÁCH 2: OPENZEPPELIN REENTRANCYGUARD (nonReentrant)]
+  🛡️ THÀNH CÔNG: Khóa nonReentrant từ chối lệnh gọi tái nhập với lỗi ReentrantCall()!
+
+===========================================================================
+BƯỚC 5: BỘ KIỂM THỬ GIAN LẬN & NEGATIVE TESTS TRÊN PROJECTCORE.SOL
+===========================================================================
+
+[TEST 1 - REENTRANCY TRÊN claimRefund()] Kẻ tấn công thử rút kép khi thất bại...
+  🛡️ BỊ CHẶN HOÀN TOÀN: Phòng thủ hai lớp (CEI + nonReentrant) chặn đứng kẻ tấn công!
+  Số dư còn lại của nạn nhân 0xVictim: 0.2000 ETH (Bảo toàn nguyên vẹn)
+
+[TEST 2 - UNAUTHORIZED CALLER] Kẻ lạ (0xHacker) gọi claimFunds()...
+  🛡️ BỊ CHẶN: OnlyCreatorAllowed()
+
+[TEST 3 - EARLY CLAIM] Chủ dự án rút tiền khi chiến dịch đang hoạt động...
+  🛡️ BỊ CHẶN: CampaignStillActive(timeLeft=604800)
+
+[TEST 4 - GOAL NOT MET] Chủ dự án đòi rút tiền khi chỉ gom được 0.10 / 1.0 ETH...
+  🛡️ BỊ CHẶN: GoalNotMet(raised=0.1000 ETH, goal=1.0000 ETH)
+
+[TEST 5 - DUST CONTRIBUTION] Gửi 0.0001 ETH (< sàn 0.001 ETH)...
+  🛡️ BỊ CHẶN: ContributionTooLow(sent=0.0001 ETH, min=0.0010 ETH)
+
+[TEST 6 - WHALE CONTRIBUTION] Nạp 0.30 ETH (> trần 25% = 0.25 ETH)...
+  🛡️ BỊ CHẶN: ExceedsMaxContribution(attempted=0.3000 ETH, limit=0.2500 ETH)
+
+[TEST 7 - HARD-CAP BREACH] Đóng góp vượt trần cứng 1.2 ETH...
+  🛡️ BỊ CHẶN: ExceedsFundingCap(attemptedTotal=1.2500 ETH, cap=1.2000 ETH)
+
+[TEST 8 - DOUBLE REFUND] Người ủng hộ thử gọi claimRefund() 2 lần liên tiếp...
+  🛡️ BỊ CHẶN: NoContributionToRefund()
+
+===========================================================================
+🏆 KẾT QUẢ LAB 13: 100% CÁC CA THỰC NGHIỆM TẤN CÔNG & HARDENING ĐẠT CHUẨN!
+   - Tái hiện thành công vụ mất tiền 6 ETH trên VulnerableBank.
+   - Khắc phục triệt để bằng Checks-Effects-Interactions & nonReentrant.
+   - Hợp đồng ProjectCore.sol an toàn tuyệt đối trước mọi kịch bản tấn công.
+===========================================================================

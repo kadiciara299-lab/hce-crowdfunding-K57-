@@ -19,6 +19,7 @@ contract ProjectCore {
     uint256 public totalRaised;
     State public state;
     mapping(address => uint256) public contributions;
+    bool private _locked; // Khoa chong tai nhap (ReentrancyGuard)
 
     // 3. Su kien on-chain
     event CampaignCreated(address indexed creator, uint256 goal, uint256 deadline);
@@ -42,6 +43,14 @@ contract ProjectCore {
     error NoContributionToRefund();
     error AlreadyClaimed();
     error TransferFailed();
+    error ReentrantCall();
+
+    modifier nonReentrant() {
+        if (_locked) revert ReentrantCall();
+        _locked = true;
+        _;
+        _locked = false;
+    }
 
     constructor(
         uint256 _goalInWei,
@@ -87,18 +96,16 @@ contract ProjectCore {
     }
 
     /// @notice Chu du an rut toan bo quy khi chien dich thanh cong
-    function claimFunds() external {
+    function claimFunds() external nonReentrant {
         // 1. Checks
         if (msg.sender != creator) revert OnlyCreatorAllowed();
         if (state == State.Claimed) revert AlreadyClaimed();
-        // Bat buoc phai qua han chot moi duoc giai ngan theo quy tac R4
         if (block.timestamp < deadline) revert CampaignStillActive(deadline - block.timestamp);
         if (totalRaised < fundingGoal) revert GoalNotMet(totalRaised, fundingGoal);
 
         // 2. Effects
         state = State.Claimed;
         uint256 amountToTransfer = address(this).balance;
-
         emit FundsClaimed(creator, amountToTransfer);
         emit StateUpdated(State.Claimed);
 
@@ -108,7 +115,7 @@ contract ProjectCore {
     }
 
     /// @notice Nguoi ung ho rut lai 100% tien khi chien dich that bai
-    function claimRefund() external {
+    function claimRefund() external nonReentrant {
         // 1. Checks
         if (block.timestamp < deadline) revert CampaignStillActive(deadline - block.timestamp);
         if (totalRaised >= fundingGoal) revert CampaignSucceeded();
@@ -116,13 +123,12 @@ contract ProjectCore {
         uint256 contributedAmount = contributions[msg.sender];
         if (contributedAmount == 0) revert NoContributionToRefund();
 
-        // 2. Effects: Xoa so du TRUOC de chong Reentrancy Attack
+        // 2. Effects: Xoa so du TRUOC de chong Reentrancy Attack (CEI)
         contributions[msg.sender] = 0;
         if (state != State.Failed) {
             state = State.Failed;
             emit StateUpdated(State.Failed);
         }
-
         emit RefundClaimed(msg.sender, contributedAmount);
 
         // 3. Interactions: Chuyen tien sau cung

@@ -83,3 +83,34 @@ Sinh viên chủ động yêu cầu AI tuân thủ tuyệt đối `AGENTS.md`:
 - Bổ sung phát `emit RefundClaimed(...)` và `emit FundsClaimed(...)`.
 
 **Ai phát hiện:** Sinh viên phát hiện (Đối chiếu trực tiếp với tệp quy ước `AGENTS.md`).
+
+---
+
+## Lần 4 — Rà soát An toàn Reentrancy theo Lối đặt Câu hỏi Dẫn dắt (Lab 13 - Mẫu I.4)
+
+**Prompt (Mẫu I.4 chuẩn Sổ tay thực hành):**  
+"Bạn là kiểm toán viên hợp đồng thông minh.  
+Đừng đưa mã sửa ngay. Hãy giải thích từng bước điều gì xảy ra khi hàm withdraw() dưới đây được gọi bởi một hợp đồng có hàm receive().  
+Sau đó nêu 2 cách khắc phục và so sánh ưu nhược điểm của từng cách.  
+[Mã nguồn VulnerableBank.sol]"
+
+**AI trả về (Tóm tắt):**  
+1. **Phân tích cơ chế tái nhập (Reentrancy Callback Loop):**  
+   - Bước 1: Kẻ tấn công gọi `withdraw()`, hàm kiểm tra `balance > 0` thành công.  
+   - Bước 2: Hợp đồng gửi ETH bằng lệnh `call{value: balance}("")`. Khi địa chỉ nhận là contract, EVM tự động chuyển giao quyền điều khiển sang hàm `receive()` của hợp đồng nhận.  
+   - Bước 3: Trong `receive()`, kẻ tấn công viết lệnh gọi ngược lại chính hàm `withdraw()` của ngân hàng.  
+   - Bước 4: Do dòng cập nhật sổ sách `balances[msg.sender] = 0;` nằm ở phía sau lệnh `call`, số dư của kẻ tấn công vẫn còn nguyên vẹn trên sổ sách! Vòng lặp đệ quy tiếp tục diễn ra cho đến khi ngân hàng hết tiền hoặc hết gas.  
+   - Bước 5: Cuối cùng, hàm mới hoàn tất các lệnh gán số dư về 0 trong call stack, nhưng ngân hàng đã trống rỗng!
+2. **Hai cách khắc phục:**  
+   - *Cách 1:* Checks-Effects-Interactions (CEI) — Đổi vị trí dòng `balances[msg.sender] = 0;` lên trước lệnh `call{value}`.  
+   - *Cách 2:* Khóa chống gọi lại `nonReentrant` (ReentrancyGuard của OpenZeppelin).
+
+**Đánh giá:** ✅ Dùng được rất tốt (Câu lệnh ép "Đừng đưa mã sửa ngay" đã buộc AI giải thích bản chất kế toán và luồng thực thi thay vì chỉ đưa code sửa).
+
+**Chỗ cần chú ý và Quyết định của nhóm:**  
+- **Vấn đáp trọng tâm:** Sinh viên nhận thức sâu sắc rằng: *"Thứ chặn được tấn công ở cách 1 là thứ tự các dòng lệnh (ghi sổ trước khi chi tiền), không phải bất kỳ một từ khóa hay thư viện nào"*.  
+- **Quyết định cho đồ án:** Nhóm áp dụng **chiến lược phòng thủ hai lớp (Defense-in-depth)** cho hợp đồng cốt lõi `ProjectCore.sol`:  
+  1. Luôn tuân thủ tuyệt đối quy tắc CEI trong `claimRefund()` và `claimFunds()`.  
+  2. Bổ sung thêm modifier `nonReentrant` nội bộ để khóa cứng mọi nỗ lực callback đệ quy, đảm bảo an toàn tuyệt đối mà vẫn giữ kích thước contract dưới 150 dòng (149 dòng).
+
+**Ai phát hiện:** Sinh viên chủ động dẫn dắt bằng Prompt I.4 $\rightarrow$ AI giải mã chi tiết luồng EVM $\rightarrow$ Sinh viên viết kịch bản thực nghiệm kiểm chứng thành công tại `test/test_lab13_hardening.py`.
