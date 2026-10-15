@@ -114,3 +114,34 @@ Sau đó nêu 2 cách khắc phục và so sánh ưu nhược điểm của từ
   2. Bổ sung thêm modifier `nonReentrant` nội bộ để khóa cứng mọi nỗ lực callback đệ quy, đảm bảo an toàn tuyệt đối mà vẫn giữ kích thước contract dưới 150 dòng (149 dòng).
 
 **Ai phát hiện:** Sinh viên chủ động dẫn dắt bằng Prompt I.4 $\rightarrow$ AI giải mã chi tiết luồng EVM $\rightarrow$ Sinh viên viết kịch bản thực nghiệm kiểm chứng thành công tại `test/test_lab13_hardening.py`.
+
+---
+
+## Lần 5 — Xử lý Báo cáo Audit Chéo (Lab 14)
+
+**Prompt:**  
+"Dưới đây là 3 điểm mà Nhóm 4 đã phản hồi về hợp đồng ProjectCore.sol của chúng tôi. Hãy phân tích xem điểm nào là hiểu nhầm về quy tắc kinh tế của mô hình All-or-Nothing, điểm nào là lỗi cần sửa, và đề xuất mã tối ưu sự kiện CampaignCreated mà không làm hợp đồng vượt quá 150 dòng."
+
+**AI trả về:**  
+AI phân loại chính xác:
+1. Ý kiến của Nhóm 4 về việc 'cho phép rút tiền trước hạn khi đạt mục tiêu' là vi phạm nguyên tắc bảo chứng All-or-Nothing; nhóm cần giữ nguyên điều kiện qua hạn chót mới cho rút tiền để bảo vệ người ủng hộ.
+2. Đề xuất bổ sung tham số `fundingCap` và `deadline` vào sự kiện `CampaignCreated` để DApp lắng nghe và hiển thị trực tiếp mà không cần nhiều cuộc gọi view.
+3. Mã cập nhật vẫn giữ hợp đồng ở mức 149 dòng.
+
+**Đánh giá:** ✅ Dùng được rất tốt. Nhóm đã tiếp thu và tối ưu hóa hợp đồng thành công.
+
+---
+
+## Lần 6 — Tích hợp Giao diện Web DApp và Bắt Lỗi Custom Error (Lab 15)
+
+**Prompt:**  
+"Tôi muốn tạo giao diện Web DApp kết nối MetaMask bằng Ethers.js v6 cho hợp đồng ProjectCore.sol. Làm thế nào để bắt các Custom Errors của Solidity ^0.8.20 (như ExceedsMaxContribution, ContributionTooLow, OnlyCreatorAllowed) và hiển thị thông báo tiếng Việt lịch sự, thân thiện thay vì chuỗi lỗi kỹ thuật khó hiểu?"
+
+**AI trả về:**  
+AI đề xuất hàm phân tích lỗi `parseCustomError(error)` dựa trên việc kiểm tra chuỗi `error.data` hoặc `error.message` chứa tên của Custom Error tương ứng. Đồng thời gợi ý cấu trúc trạng thái UI, nút chọn nhanh số tiền và cơ chế đếm ngược thời gian thực.
+
+**Chỗ sinh viên hoàn thiện:**  
+Sinh viên nhận thấy nếu mạng Sepolia bị quá tải hay nghẽn RPC trong lúc báo cáo 5 phút thì buổi thuyết trình sẽ gặp sự cố lớn. Vì vậy, sinh viên chủ động yêu cầu tích hợp thêm **Chế độ Demo 5 Phút (Offline Simulation)** trực tiếp trên giao diện để có thể chuyển đổi linh hoạt chỉ bằng một nút bấm.
+
+**Ai phát hiện:** Sinh viên phát hiện rủi ro mạng và chủ động thiết kế chiến lược dự phòng rủi ro.
+

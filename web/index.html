@@ -1,56 +1,1586 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Ứng dụng ECO2432</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HCE Student Crowdfund — DApp Gây Quỹ Sinh Viên Minh Bạch Có Hoàn Tiền</title>
+  <meta name="description" content="Nền tảng Web3 DApp gây quỹ sinh viên Trường Đại học Kinh tế, Đại học Huế (HCE). Cơ chế All-or-Nothing, bảo chứng hoàn tiền tự động 100% bằng Smart Contract trên Ethereum Sepolia.">
+  <meta name="keywords" content="HCE, Web3, Crowdfunding, Smart Contract, Ethereum Sepolia, ECO2432, Sinh vien Hue">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/ethers@6.13.2/dist/ethers.umd.min.js"></script>
   <style>
-    body{font-family:system-ui,sans-serif;max-width:680px;margin:40px auto;padding:0 18px;color:#172033}
-    button,input{font:inherit;padding:10px 12px;margin:5px 3px 5px 0} #status{min-height:1.5em;color:#1d4ed8}
+    :root {
+      --bg-base: #0a0f1d;
+      --bg-surface: #111827;
+      --bg-surface-elevated: rgba(17, 24, 39, 0.75);
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --border-glow: rgba(99, 102, 241, 0.35);
+      --primary: #6366f1;
+      --primary-hover: #4f46e5;
+      --primary-glow: rgba(99, 102, 241, 0.25);
+      --accent-cyan: #06b6d4;
+      --accent-green: #10b981;
+      --accent-green-glow: rgba(16, 185, 129, 0.2);
+      --accent-amber: #f59e0b;
+      --accent-rose: #f43f5e;
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
+      --text-dim: #6b7280;
+      --card-radius: 20px;
+      --btn-radius: 12px;
+      --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-base);
+      background-image: 
+        radial-gradient(at 10% 10%, rgba(99, 102, 241, 0.12) 0px, transparent 50%),
+        radial-gradient(at 90% 90%, rgba(6, 182, 212, 0.1) 0px, transparent 50%),
+        radial-gradient(at 50% 50%, rgba(16, 185, 129, 0.05) 0px, transparent 60%);
+      background-attachment: fixed;
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      line-height: 1.6;
+      padding-bottom: 60px;
+    }
+
+    /* Header Nav */
+    header {
+      background: rgba(10, 15, 29, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border-subtle);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      padding: 14px 24px;
+    }
+
+    .nav-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: var(--text-main);
+    }
+
+    .brand-logo {
+      width: 42px;
+      height: 42px;
+      background: linear-gradient(135deg, #6366f1, #06b6d4);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 20px;
+      color: #fff;
+      box-shadow: 0 4px 14px var(--primary-glow);
+    }
+
+    .brand-text h1 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+    }
+
+    .brand-text span {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    /* Switch Demo Mode */
+    .mode-toggle {
+      display: flex;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-subtle);
+      padding: 4px;
+      border-radius: 30px;
+      font-size: 0.75rem;
+      cursor: pointer;
+    }
+
+    .mode-btn {
+      padding: 6px 12px;
+      border-radius: 20px;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      font-weight: 600;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .mode-btn.active {
+      background: var(--primary);
+      color: #fff;
+      box-shadow: 0 2px 8px var(--primary-glow);
+    }
+
+    .btn-connect {
+      background: linear-gradient(135deg, #6366f1, #4f46e5);
+      color: #ffffff;
+      border: none;
+      padding: 10px 18px;
+      border-radius: var(--btn-radius);
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 14px var(--primary-glow);
+    }
+
+    .btn-connect:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+    }
+
+    .wallet-chip {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-subtle);
+      padding: 6px 14px;
+      border-radius: var(--btn-radius);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent-green);
+      box-shadow: 0 0 10px var(--accent-green);
+    }
+
+    /* Main Container */
+    main {
+      max-width: 1200px;
+      margin: 32px auto 0;
+      padding: 0 20px;
+    }
+
+    /* Banner / Hero */
+    .hero-banner {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(6, 182, 212, 0.08));
+      border: 1px solid var(--border-glow);
+      border-radius: var(--card-radius);
+      padding: 32px;
+      margin-bottom: 28px;
+      position: relative;
+      overflow: hidden;
+      backdrop-filter: blur(12px);
+    }
+
+    .hero-banner::after {
+      content: '';
+      position: absolute;
+      top: -50px;
+      right: -50px;
+      width: 200px;
+      height: 200px;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.25) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .badge-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(99, 102, 241, 0.2);
+      border: 1px solid rgba(99, 102, 241, 0.4);
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #a5b4fc;
+      margin-bottom: 14px;
+    }
+
+    .hero-banner h2 {
+      font-size: 2rem;
+      font-weight: 800;
+      line-height: 1.25;
+      margin-bottom: 12px;
+      background: linear-gradient(to right, #ffffff, #c7d2fe, #a5f3fc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-banner p {
+      color: var(--text-muted);
+      font-size: 1.05rem;
+      max-width: 820px;
+    }
+
+    /* Grid Layout */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 1.7fr 1.3fr;
+      gap: 24px;
+    }
+
+    @media (max-width: 900px) {
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+      .hero-banner h2 {
+        font-size: 1.5rem;
+      }
+    }
+
+    /* Cards */
+    .card {
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--card-radius);
+      padding: 26px;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      position: relative;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 14px;
+    }
+
+    .card-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Campaign Status Pill */
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      border-radius: 30px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .status-active {
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      color: #34d399;
+    }
+
+    .status-successful {
+      background: rgba(99, 102, 241, 0.15);
+      border: 1px solid rgba(99, 102, 241, 0.4);
+      color: #818cf8;
+    }
+
+    .status-failed {
+      background: rgba(244, 63, 94, 0.15);
+      border: 1px solid rgba(244, 63, 94, 0.4);
+      color: #fb7185;
+    }
+
+    .status-claimed {
+      background: rgba(245, 158, 11, 0.15);
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      color: #fcd34d;
+    }
+
+    /* Metrics Grid */
+    .metrics-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    @media (max-width: 600px) {
+      .metrics-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .metric-box {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      padding: 16px;
+    }
+
+    .metric-label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .metric-val {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: #ffffff;
+      font-family: var(--font-mono);
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+    }
+
+    .metric-unit {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--accent-cyan);
+    }
+
+    /* Progress bar */
+    .progress-section {
+      margin-bottom: 24px;
+    }
+
+    .progress-labels {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .progress-bar-bg {
+      height: 14px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #6366f1, #06b6d4, #10b981);
+      border-radius: 10px;
+      transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+      box-shadow: 0 0 16px rgba(99, 102, 241, 0.5);
+    }
+
+    .cap-marker {
+      position: absolute;
+      right: 0;
+      top: -2px;
+      bottom: -2px;
+      width: 3px;
+      background: var(--accent-amber);
+      z-index: 2;
+    }
+
+    /* Time Countdown Box */
+    .countdown-card {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01));
+      border: 1px dashed var(--border-glow);
+      border-radius: 14px;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+
+    .countdown-timer {
+      font-family: var(--font-mono);
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #38bdf8;
+      letter-spacing: 0.05em;
+    }
+
+    /* Actions Panel */
+    .action-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .input-label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .input-field {
+      width: 100%;
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--btn-radius);
+      padding: 14px 70px 14px 16px;
+      color: #ffffff;
+      font-family: var(--font-mono);
+      font-size: 1.05rem;
+      font-weight: 600;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .input-field:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-glow);
+    }
+
+    .input-suffix {
+      position: absolute;
+      right: 16px;
+      font-weight: 700;
+      color: var(--text-dim);
+      font-size: 0.9rem;
+      pointer-events: none;
+    }
+
+    /* Quick Amount Buttons */
+    .quick-chips {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .chip-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .chip-btn:hover {
+      background: rgba(99, 102, 241, 0.15);
+      border-color: var(--primary);
+      color: #fff;
+    }
+
+    /* Action Buttons */
+    .btn-action {
+      width: 100%;
+      padding: 14px;
+      border-radius: var(--btn-radius);
+      border: none;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-pledge {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: #fff;
+      box-shadow: 0 4px 14px var(--accent-green-glow);
+    }
+
+    .btn-pledge:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-main);
+    }
+
+    .btn-secondary:hover:not(:disabled) {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-claim {
+      background: linear-gradient(135deg, #6366f1, #4f46e5);
+      color: #fff;
+      box-shadow: 0 4px 14px var(--primary-glow);
+    }
+
+    .btn-refund {
+      background: linear-gradient(135deg, #f43f5e, #e11d48);
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(244, 63, 94, 0.3);
+    }
+
+    .btn-action:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      transform: none !important;
+      box-shadow: none !important;
+    }
+
+    /* Status & Feedback Log */
+    .status-panel {
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      padding: 16px;
+      margin-top: 14px;
+      min-height: 52px;
+      font-size: 0.88rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .status-panel.info {
+      border-color: rgba(99, 102, 241, 0.4);
+      color: #c7d2fe;
+    }
+
+    .status-panel.success {
+      border-color: rgba(16, 185, 129, 0.4);
+      color: #a7f3d0;
+      background: rgba(16, 185, 129, 0.08);
+    }
+
+    .status-panel.error {
+      border-color: rgba(244, 63, 94, 0.4);
+      color: #fecdd3;
+      background: rgba(244, 63, 94, 0.08);
+    }
+
+    /* User Profile Contribution */
+    .user-stats {
+      background: rgba(99, 102, 241, 0.07);
+      border: 1px solid rgba(99, 102, 241, 0.2);
+      border-radius: 14px;
+      padding: 14px 16px;
+      margin-top: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* Rules & Security Safeguards */
+    .rules-card {
+      margin-top: 28px;
+    }
+
+    .rules-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    @media (max-width: 900px) {
+      .rules-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 500px) {
+      .rules-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .rule-item {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      padding: 16px;
+      transition: transform 0.2s ease;
+    }
+
+    .rule-item:hover {
+      transform: translateY(-2px);
+      border-color: var(--border-glow);
+    }
+
+    .rule-icon {
+      font-size: 1.5rem;
+      margin-bottom: 8px;
+      display: inline-block;
+    }
+
+    .rule-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+      color: #fff;
+    }
+
+    .rule-desc {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      line-height: 1.45;
+    }
+
+    /* Network / Contract Bar */
+    .contract-bar {
+      margin-top: 24px;
+      padding: 14px 20px;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    .contract-hash {
+      font-family: var(--font-mono);
+      color: var(--accent-cyan);
+      word-break: break-all;
+    }
+
+    /* Footer */
+    footer {
+      max-width: 1200px;
+      margin: 40px auto 0;
+      padding: 20px;
+      text-align: center;
+      border-top: 1px solid var(--border-subtle);
+      color: var(--text-dim);
+      font-size: 0.85rem;
+    }
+
+    footer a {
+      color: #a5b4fc;
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-radius: 50%;
+      border-top-color: #fff;
+      animation: spin 0.8s ease-in-out infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
   </style>
 </head>
 <body>
-  <h1>Két tiết kiệm của nhóm</h1>
-  <button id="btnConnect">Kết nối ví</button>
-  <p>Ví: <span id="account">chưa kết nối</span></p>
-  <p>Số dư trong két: <span id="vaultBalance">-</span> ETH</p>
-  <input id="amount" type="number" step="0.001" placeholder="Số ETH muốn nạp">
-  <button id="btnDeposit">Nạp tiền</button>
-  <button id="btnWithdraw">Rút tiền</button>
-  <p id="status"></p>
-<script>
-const CONTRACT_ADDRESS = "0x................................";
-const CONTRACT_ABI = [];
-let provider, signer, contract;
-const statusNode = document.getElementById("status");
-const setStatus = (message) => { statusNode.textContent = message; };
-async function refresh() {
-  const balance = await provider.getBalance(CONTRACT_ADDRESS);
-  document.getElementById("vaultBalance").textContent = ethers.formatEther(balance);
-}
-document.getElementById("btnConnect").onclick = async () => {
-  if (!window.ethereum) return alert("Chưa cài MetaMask");
-  provider = new ethers.BrowserProvider(window.ethereum);
-  await provider.send("eth_requestAccounts", []);
-  signer = await provider.getSigner();
-  contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
-  document.getElementById("account").textContent = await signer.getAddress();
-  await refresh();
-};
-document.getElementById("btnDeposit").onclick = async () => {
-  try {
-    const value = document.getElementById("amount").value;
-    const tx = await contract.deposit({value: ethers.parseEther(value)});
-    setStatus("Đang chờ xác nhận..."); await tx.wait(); setStatus("Đã nạp: " + tx.hash); await refresh();
-  } catch (error) { setStatus(error.shortMessage || error.message); }
-};
-document.getElementById("btnWithdraw").onclick = async () => {
-  try {
-    const tx = await contract.withdraw(); setStatus("Đang chờ xác nhận...");
-    await tx.wait(); setStatus("Đã rút: " + tx.hash); await refresh();
-  } catch (error) { setStatus(error.shortMessage || error.message); }
-};
-</script>
+
+  <!-- Top Navigation -->
+  <header>
+    <div class="nav-container">
+      <a href="./" class="brand">
+        <div class="brand-logo">H</div>
+        <div class="brand-text">
+          <h1>HCE Student Crowdfund</h1>
+          <span>Chủ đề 5 · ECO2432 Web3</span>
+        </div>
+      </a>
+
+      <div class="nav-actions">
+        <!-- Chế độ demo để demo không phụ thuộc vào mạng -->
+        <div class="mode-toggle" title="Chuyển đổi giữa Sepolia Testnet thật và Chế độ Trình diễn Mock">
+          <button id="btnModeReal" class="mode-btn active" onclick="switchMode(false)">Sepolia Testnet</button>
+          <button id="btnModeMock" class="mode-btn" onclick="switchMode(true)">Demo 5 Phút</button>
+        </div>
+
+        <button id="btnConnect" class="btn-connect">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="4" width="20" height="16" rx="4"></rect>
+            <path d="M7 10h.01"></path>
+            <path d="M17 14h.01"></path>
+          </svg>
+          <span id="btnConnectText">Kết nối ví MetaMask</span>
+        </button>
+
+        <div id="walletBadge" class="wallet-chip" style="display: none;">
+          <span class="status-dot"></span>
+          <span id="account">0x...</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- Hero Banner -->
+    <section class="hero-banner">
+      <div class="badge-tag">
+        <span>🛡️</span> Smart Contract Bảo Chứng (Assurance Escrow)
+      </div>
+      <h2>Gây Quỹ Dự Án Sinh Viên Minh Bạch & An Toàn Tuyệt Đối</h2>
+      <p>
+        Áp dụng mô hình kinh tế <strong>All-or-Nothing</strong>: Tiền đóng góp được ký gửi trong Smart Contract phi tập trung. 
+        Nếu dự án không đạt chỉ tiêu đúng hạn, hợp đồng thông minh kích hoạt hoàn tiền tự động 100% về ví người ủng hộ mà không ai có thể can thiệp hay chặn giữ.
+      </p>
+    </section>
+
+    <!-- Main Dashboard Grid -->
+    <div class="dashboard-grid">
+      
+      <!-- Left Column: Chiến dịch & Tiến độ -->
+      <section class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <span>📊</span> Tiến Độ Gọi Vốn Chiến Dịch
+          </div>
+          <div id="stateBadge" class="status-badge status-active">
+            <span class="status-dot"></span>
+            <span id="stateText">Đang diễn ra (Active)</span>
+          </div>
+        </div>
+
+        <!-- 3 Metrics -->
+        <div class="metrics-row">
+          <div class="metric-box">
+            <div class="metric-label">Đã Gây Quỹ Được</div>
+            <div class="metric-val">
+              <span id="vaultBalance">0.000</span>
+              <span class="metric-unit">ETH</span>
+            </div>
+          </div>
+          <div class="metric-box">
+            <div class="metric-label">Mục Tiêu Gọi Vốn (Goal)</div>
+            <div class="metric-val">
+              <span id="fundingGoal">1.000</span>
+              <span class="metric-unit">ETH</span>
+            </div>
+          </div>
+          <div class="metric-box">
+            <div class="metric-label">Trần Cứng An Toàn (120%)</div>
+            <div class="metric-val">
+              <span id="fundingCap">1.200</span>
+              <span class="metric-unit">ETH</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Progress bar -->
+        <div class="progress-section">
+          <div class="progress-labels">
+            <span>Tiến độ huy động: <strong id="progressPercent" style="color: var(--accent-cyan);">0%</strong></span>
+            <span style="color: var(--accent-amber);">Trần tối đa: 1.20 ETH</span>
+          </div>
+          <div class="progress-bar-bg">
+            <div id="progressFill" class="progress-bar-fill"></div>
+            <div class="cap-marker" title="Trần cứng 120%"></div>
+          </div>
+        </div>
+
+        <!-- Countdown Box -->
+        <div class="countdown-card">
+          <div>
+            <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 2px;">Thời Gian Còn Lại</div>
+            <div style="font-size: 0.85rem; font-weight: 600;">Hạn chót đóng quỹ: <span id="deadlineText">Đang tải...</span></div>
+          </div>
+          <div id="countdown" class="countdown-timer">-- : -- : --</div>
+        </div>
+
+        <!-- Creator & Contract View Info -->
+        <div style="font-size: 0.85rem; color: var(--text-muted); display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div>
+            <span style="color: var(--text-dim);">Chủ nhiệm dự án (Creator):</span><br>
+            <code id="creatorAddress" style="font-family: var(--font-mono); color: #cbd5e1;">0x71C3b7C8A9B2c21950b73De79A168f844bF97A48</code>
+          </div>
+          <div>
+            <span style="color: var(--text-dim);">Giới hạn đóng góp / ví:</span><br>
+            <span style="color: #cbd5e1; font-weight: 600;">Tối thiểu <span id="minContributionText">0.001</span> ETH · Tối đa <span id="maxContributionText">0.25</span> ETH (25%)</span>
+          </div>
+        </div>
+
+        <!-- User Contribution Card -->
+        <div class="user-stats">
+          <div>
+            <div style="font-size: 0.8rem; color: var(--text-muted);">Số ETH ví của bạn đã ủng hộ</div>
+            <div style="font-size: 1.1rem; font-weight: 800; font-family: var(--font-mono); color: #818cf8;">
+              <span id="myContribution">0.000</span> ETH
+            </div>
+          </div>
+          <div style="text-align: right;">
+            <div style="font-size: 0.75rem; color: var(--text-muted);">Quyền lợi bảo chứng</div>
+            <span id="refundEligibleBadge" style="font-size: 0.8rem; color: #34d399; font-weight: 600;">✓ Hoàn trả 100% nếu thất bại</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Right Column: Bảng Điều Khiển Tương Tác (Pledge / Claim / Refund) -->
+      <section class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <span>⚡</span> Cổng Tương Tác On-Chain
+          </div>
+          <span style="font-size: 0.75rem; color: var(--text-muted);" id="networkBadge">Sepolia (11155111)</span>
+        </div>
+
+        <div class="action-panel">
+          <!-- Step 1: Pledge Form -->
+          <div class="input-group">
+            <div class="input-label">
+              <span>Số Tiền Ủng Hộ (Pledge)</span>
+              <span style="font-size: 0.75rem; color: #a5b4fc;">Sàn: 0.001 ETH | Trần: 0.25 ETH</span>
+            </div>
+            <div class="input-wrapper">
+              <input id="amount" type="number" step="0.001" min="0.001" max="0.25" placeholder="0.05" class="input-field" value="0.05">
+              <span class="input-suffix">ETH</span>
+            </div>
+            <!-- Quick Chips -->
+            <div class="quick-chips">
+              <button class="chip-btn" onclick="setQuickAmount(0.001)">0.001 (Sàn)</button>
+              <button class="chip-btn" onclick="setQuickAmount(0.05)">0.05 ETH</button>
+              <button class="chip-btn" onclick="setQuickAmount(0.10)">0.10 ETH</button>
+              <button class="chip-btn" onclick="setQuickAmount(0.25)">0.25 (Trần 25%)</button>
+            </div>
+          </div>
+
+          <!-- Nút Nạp Tiền -->
+          <button id="btnPledge" class="btn-action btn-pledge" onclick="handlePledge()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+            </svg>
+            <span>Nạp Quỹ Vào Chiến Dịch (Pledge)</span>
+          </button>
+
+          <hr style="border: none; border-top: 1px solid var(--border-subtle); margin: 6px 0;">
+
+          <!-- Quản trị giải ngân & Hoàn tiền -->
+          <div style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted); margin-bottom: -4px;">
+            Hành Động Quyết Toán Hợp Đồng (Theo Trạng Thái)
+          </div>
+
+          <!-- Nút Rút Quỹ (Creator Only) -->
+          <button id="btnClaimFunds" class="btn-action btn-claim" onclick="handleClaimFunds()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+              <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+            <span>Chủ Dự Án Rút Tiền (Claim Funds)</span>
+          </button>
+
+          <!-- Nút Hoàn Tiền (Backers Only) -->
+          <button id="btnClaimRefund" class="btn-action btn-refund" onclick="handleClaimRefund()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+              <path d="M3 3v5h5"></path>
+            </svg>
+            <span>Rút Lại 100% Hoàn Tiền (Claim Refund)</span>
+          </button>
+
+          <!-- Status / Error Notification Box -->
+          <div id="statusNode" class="status-panel info">
+            <span>ℹ️</span>
+            <span id="statusMessage">Sẵn sàng. Hãy kết nối ví MetaMask để bắt đầu tương tác.</span>
+          </div>
+
+          <!-- Nút chuyển mạng Sepolia nếu sai mạng -->
+          <button id="btnSwitchNetwork" class="btn-action btn-secondary" style="display: none; font-size: 0.85rem;" onclick="switchNetwork()">
+            🔄 Đổi sang Mạng Sepolia Testnet
+          </button>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- 4 Rào Cản Kinh Tế (Economic Safeguards) -->
+    <section class="card rules-card">
+      <div class="card-header">
+        <div class="card-title">
+          <span>🛡️</span> 4 Rào Cản Kinh Tế Chống Gian Lận Đã Được Mã Hóa Vào Smart Contract
+        </div>
+        <span style="font-size: 0.75rem; color: #a5b4fc;">Chuẩn mực ECO2432 / HCE</span>
+      </div>
+
+      <div class="rules-grid">
+        <div class="rule-item">
+          <div class="rule-icon">⚖️</div>
+          <div class="rule-title">1. Bảo Chứng All-or-Nothing</div>
+          <div class="rule-desc">
+            Không đạt đủ 1.0 ETH trước hạn chót? 100% tiền sẽ trả lại cho sinh viên. Chủ nhiệm dự án không thể rút một đồng nào nếu thất bại.
+          </div>
+        </div>
+
+        <div class="rule-item">
+          <div class="rule-icon">🚫</div>
+          <div class="rule-title">2. Sàn Đóng Góp (0.001 ETH)</div>
+          <div class="rule-desc">
+            Chặn đứng tấn công Spam giao dịch rác (Dust Attack) và đảm bảo chi phí gas không vượt quá giá trị nạp quỹ.
+          </div>
+        </div>
+
+        <div class="rule-item">
+          <div class="rule-icon">🐋</div>
+          <div class="rule-title">3. Trần Mỗi Ví (25% Mục Tiêu)</div>
+          <div class="rule-desc">
+            Mỗi ví chỉ được nạp tối đa 0.25 ETH. Chống cá voi độc quyền thao túng dự án, thúc đẩy sự tham gia rộng rãi của cộng đồng sinh viên.
+          </div>
+        </div>
+
+        <div class="rule-item">
+          <div class="rule-icon">🛑</div>
+          <div class="rule-title">4. Trần Cứng (Funding Cap 120%)</div>
+          <div class="rule-desc">
+            Giới hạn tối đa 1.2 ETH. Ngăn chặn hiện tượng nhận tiền vượt mức kiểm soát, gây rủi ro thất thoát vốn ngoài dự toán.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contract Details & Etherscan Link -->
+    <div class="contract-bar">
+      <div>
+        <span>Địa chỉ hợp đồng (Sepolia): </span>
+        <a id="contractLink" href="https://sepolia.etherscan.io/address/0x71C3b7C8A9B2c21950b73De79A168f844bF97A48" target="_blank" rel="noopener" class="contract-hash">
+          0x71C3b7C8A9B2c21950b73De79A168f844bF97A48 ↗
+        </a>
+      </div>
+      <div>
+        <span>Mã nguồn: </span>
+        <a href="https://github.com/kadiciara299-lab/hce-crowdfunding-K57-/blob/main/contracts/project/ProjectCore.sol" target="_blank" rel="noopener" style="color: #cbd5e1; text-decoration: underline;">
+          ProjectCore.sol (149 dòng, Solidity ^0.8.20)
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <p>
+      Dự án Đồ án Môn học <strong>ECO2432 — Tiền điện tử & Hợp đồng thông minh</strong> · Nhóm K57 Kinh Tế Số, Trường Đại học Kinh tế — Đại học Huế (HCE)
+    </p>
+    <p style="margin-top: 6px; font-size: 0.8rem;">
+      Thực hiện: <strong>Hoàng Mạnh Tường</strong> (23K4300042) & <strong>Nguyễn Nguyên Phương</strong> (23K4300034) · Khóa 2023–2027
+    </p>
+  </footer>
+
+  <script>
+    // ==========================================
+    // CẤU HÌNH SMART CONTRACT DỰ ÁN
+    // ==========================================
+    const DEFAULT_CONTRACT_ADDRESS = "0x71C3b7C8A9B2c21950b73De79A168f844bF97A48";
+    const SEPOLIA_CHAIN_ID = 11155111;
+    const SEPOLIA_HEX = "0xaa36a7";
+
+    // ABI Đầy đủ theo ProjectCore.sol
+    const CONTRACT_ABI = [
+      // View Variables & Getters
+      "function creator() external view returns (address)",
+      "function fundingGoal() external view returns (uint256)",
+      "function fundingCap() external view returns (uint256)",
+      "function deadline() external view returns (uint256)",
+      "function minContribution() external view returns (uint256)",
+      "function maxContributionPerWallet() external view returns (uint256)",
+      "function totalRaised() external view returns (uint256)",
+      "function state() external view returns (uint8)",
+      "function contributions(address) external view returns (uint256)",
+      "function timeLeft() external view returns (uint256)",
+      
+      // State-changing Functions
+      "function pledge() external payable",
+      "function claimFunds() external",
+      "function claimRefund() external",
+
+      // Events
+      "event CampaignCreated(address indexed creator, uint256 goal, uint256 cap, uint256 deadline)",
+      "event Pledged(address indexed contributor, uint256 amount, uint256 currentTotal)",
+      "event FundsClaimed(address indexed creator, uint256 totalAmount)",
+      "event RefundClaimed(address indexed contributor, uint256 refundAmount)",
+      "event StateUpdated(uint8 newState)",
+
+      // Custom Errors
+      "error InvalidCreator()",
+      "error InvalidGoal()",
+      "error InvalidDuration()",
+      "error CampaignEnded(uint256 deadline, uint256 currentTime)",
+      "error ContributionTooLow(uint256 sent, uint256 minRequired)",
+      "error ExceedsMaxContribution(uint256 attempted, uint256 limit)",
+      "error ExceedsFundingCap(uint256 attemptedTotal, uint256 cap)",
+      "error OnlyCreatorAllowed()",
+      "error GoalNotMet(uint256 raised, uint256 goal)",
+      "error CampaignStillActive(uint256 timeLeft)",
+      "error CampaignSucceeded()",
+      "error NoContributionToRefund()",
+      "error AlreadyClaimed()",
+      "error TransferFailed()",
+      "error ReentrantCall()"
+    ];
+
+    // Trạng thái ứng dụng
+    let isMockMode = false;
+    let provider = null;
+    let signer = null;
+    let contract = null;
+    let userAddress = null;
+    let campaignData = {
+      creator: "0x71C3b7C8A9B2c21950b73De79A168f844bF97A48",
+      goal: 1.0,
+      cap: 1.2,
+      totalRaised: 0.05,
+      minContribution: 0.001,
+      maxContribution: 0.25,
+      deadline: Math.floor(Date.now() / 1000) + (5 * 86400),
+      state: 0, // 0: Active, 1: Successful, 2: Failed, 3: Claimed
+      userPledged: 0.05
+    };
+
+    let countdownTimer = null;
+
+    // DOM Elements
+    const btnConnect = document.getElementById("btnConnect");
+    const btnConnectText = document.getElementById("btnConnectText");
+    const walletBadge = document.getElementById("walletBadge");
+    const accountEl = document.getElementById("account");
+    const vaultBalanceEl = document.getElementById("vaultBalance");
+    const fundingGoalEl = document.getElementById("fundingGoal");
+    const fundingCapEl = document.getElementById("fundingCap");
+    const progressFillEl = document.getElementById("progressFill");
+    const progressPercentEl = document.getElementById("progressPercent");
+    const countdownEl = document.getElementById("countdown");
+    const deadlineTextEl = document.getElementById("deadlineText");
+    const creatorAddressEl = document.getElementById("creatorAddress");
+    const minContributionText = document.getElementById("minContributionText");
+    const maxContributionText = document.getElementById("maxContributionText");
+    const myContributionEl = document.getElementById("myContribution");
+    const stateBadge = document.getElementById("stateBadge");
+    const stateText = document.getElementById("stateText");
+    const statusNode = document.getElementById("statusNode");
+    const statusMessage = document.getElementById("statusMessage");
+    const btnPledge = document.getElementById("btnPledge");
+    const btnClaimFunds = document.getElementById("btnClaimFunds");
+    const btnClaimRefund = document.getElementById("btnClaimRefund");
+    const btnSwitchNetwork = document.getElementById("btnSwitchNetwork");
+    const networkBadge = document.getElementById("networkBadge");
+
+    // ==========================================
+    // THÔNG BÁO VÀ TIỆN ÍCH TRÌNH BÀY
+    // ==========================================
+    function setStatus(msg, type = "info") {
+      statusNode.className = `status-panel ${type}`;
+      let icon = "ℹ️";
+      if (type === "success") icon = "✅";
+      if (type === "error") icon = "❌";
+      statusNode.innerHTML = `<span>${icon}</span><span>${msg}</span>`;
+    }
+
+    function setQuickAmount(val) {
+      document.getElementById("amount").value = val;
+    }
+
+    // ==========================================
+    // DỊCH LỖI CUSTOM ERROR TIẾNG VIỆT THÂN THIỆN
+    // ==========================================
+    function parseCustomError(error) {
+      const errStr = (error.data || error.message || "").toString();
+      
+      if (errStr.includes("ContributionTooLow") || error.message?.includes("ContributionTooLow")) {
+        return "Số tiền gửi nhỏ hơn mức sàn quy định (Tối thiểu 0.001 ETH)!";
+      }
+      if (errStr.includes("ExceedsMaxContribution") || error.message?.includes("ExceedsMaxContribution")) {
+        return "Vi phạm rào cản trần ví: Mỗi ví chỉ được đóng góp tối đa 25% mục tiêu (0.25 ETH)!";
+      }
+      if (errStr.includes("ExceedsFundingCap") || error.message?.includes("ExceedsFundingCap")) {
+        return "Vượt quá trần cứng an toàn (120% mục tiêu = 1.2 ETH). Chiến dịch từ chối nhận thêm quỹ!";
+      }
+      if (errStr.includes("CampaignEnded") || error.message?.includes("CampaignEnded")) {
+        return "Chiến dịch đã kết thúc hạn chót nhận quỹ!";
+      }
+      if (errStr.includes("OnlyCreatorAllowed") || error.message?.includes("OnlyCreatorAllowed")) {
+        return "Chỉ chủ nhiệm dự án (Creator) mới có quyền rút tiền giải ngân!";
+      }
+      if (errStr.includes("GoalNotMet") || error.message?.includes("GoalNotMet")) {
+        return "Chưa đạt mục tiêu tối thiểu (1.0 ETH), không thể giải ngân!";
+      }
+      if (errStr.includes("CampaignStillActive") || error.message?.includes("CampaignStillActive")) {
+        return "Chiến dịch vẫn đang mở tiếp nhận quỹ, chưa đến hạn chót giải ngân/hoàn tiền!";
+      }
+      if (errStr.includes("CampaignSucceeded") || error.message?.includes("CampaignSucceeded")) {
+        return "Chiến dịch đã thành công và tiền thuộc về dự án, không áp dụng hoàn tiền!";
+      }
+      if (errStr.includes("NoContributionToRefund") || error.message?.includes("NoContributionToRefund")) {
+        return "Ví này chưa đóng góp ETH nào vào quỹ để nhận hoàn tiền!";
+      }
+      if (errStr.includes("AlreadyClaimed") || error.message?.includes("AlreadyClaimed")) {
+        return "Quỹ dự án đã được giải ngân hoàn tất trước đó!";
+      }
+      if (error.code === 4001 || error.message?.includes("rejected")) {
+        return "Bạn đã từ chối ký xác nhận giao dịch trên ví MetaMask.";
+      }
+      return error.shortMessage || error.message || "Giao dịch không thành công.";
+    }
+
+    // ==========================================
+    // CẬP NHẬT GIAO DIỆN & THANH TIẾN ĐỘ
+    // ==========================================
+    function updateUI() {
+      // 1. Số dư và mục tiêu
+      vaultBalanceEl.textContent = Number(campaignData.totalRaised).toFixed(3);
+      fundingGoalEl.textContent = Number(campaignData.goal).toFixed(3);
+      fundingCapEl.textContent = Number(campaignData.cap).toFixed(3);
+
+      // 2. Tiến độ phần trăm
+      const pct = Math.min(100, Math.round((campaignData.totalRaised / campaignData.goal) * 100));
+      progressPercentEl.textContent = `${pct}%`;
+      progressFillEl.style.width = `${Math.min(100, (campaignData.totalRaised / campaignData.cap) * 100)}%`;
+
+      // 3. Thông tin người dùng
+      myContributionEl.textContent = Number(campaignData.userPledged).toFixed(3);
+      creatorAddressEl.textContent = campaignData.creator;
+
+      // 4. Trạng thái chiến dịch (State Badge)
+      // 0: Active, 1: Successful, 2: Failed, 3: Claimed
+      const states = [
+        { name: "Đang diễn ra (Active)", class: "status-active" },
+        { name: "Thành công (Successful)", class: "status-successful" },
+        { name: "Thất bại - Hoàn tiền (Failed)", class: "status-failed" },
+        { name: "Đã giải ngân (Claimed)", class: "status-claimed" }
+      ];
+
+      const curState = states[campaignData.state] || states[0];
+      stateBadge.className = `status-badge ${curState.class}`;
+      stateText.textContent = curState.name;
+
+      // 5. Cập nhật trạng thái các nút
+      const now = Math.floor(Date.now() / 1000);
+      const isEnded = now >= campaignData.deadline;
+
+      if (campaignData.state === 0 && !isEnded) {
+        btnPledge.disabled = false;
+        btnClaimFunds.disabled = true;
+        btnClaimRefund.disabled = true;
+      } else if (campaignData.state === 1 || (campaignData.totalRaised >= campaignData.goal && isEnded)) {
+        btnPledge.disabled = true;
+        btnClaimFunds.disabled = false;
+        btnClaimRefund.disabled = true;
+      } else if (campaignData.state === 2 || (campaignData.totalRaised < campaignData.goal && isEnded)) {
+        btnPledge.disabled = true;
+        btnClaimFunds.disabled = true;
+        btnClaimRefund.disabled = campaignData.userPledged === 0;
+      } else if (campaignData.state === 3) {
+        btnPledge.disabled = true;
+        btnClaimFunds.disabled = true;
+        btnClaimRefund.disabled = true;
+      }
+    }
+
+    // ==========================================
+    // ĐỒNG HỒ ĐẾM NGƯỢC
+    // ==========================================
+    function startCountdown() {
+      if (countdownTimer) clearInterval(countdownTimer);
+
+      const d = new Date(campaignData.deadline * 1000);
+      deadlineTextEl.textContent = d.toLocaleString("vi-VN");
+
+      countdownTimer = setInterval(() => {
+        const now = Math.floor(Date.now() / 1000);
+        const diff = campaignData.deadline - now;
+
+        if (diff <= 0) {
+          countdownEl.textContent = "00 : 00 : 00 (ĐÃ ĐÓNG)";
+          countdownEl.style.color = "var(--accent-rose)";
+          clearInterval(countdownTimer);
+          updateUI();
+          return;
+        }
+
+        const days = Math.floor(diff / 86400);
+        const hours = Math.floor((diff % 86400) / 3600);
+        const mins = Math.floor((diff % 3600) / 60);
+        const secs = diff % 60;
+
+        countdownEl.textContent = `${days > 0 ? days + "d " : ""}${String(hours).padStart(2, "0")} : ${String(mins).padStart(2, "0")} : ${String(secs).padStart(2, "0")}`;
+      }, 1000);
+    }
+
+    // ==========================================
+    // KẾT NỐI VÍ METAMASK (Sepolia)
+    // ==========================================
+    btnConnect.onclick = async () => {
+      if (isMockMode) {
+        userAddress = "0x23K4300042DemoWalletHceStudent0000000";
+        btnConnect.style.display = "none";
+        walletBadge.style.display = "flex";
+        accountEl.textContent = "0x23K4...0000 (Demo)";
+        setStatus("Đã kết nối ví Demo giả lập cho buổi trình bày 5 phút!", "success");
+        updateUI();
+        return;
+      }
+
+      if (!window.ethereum) {
+        alert("Trình duyệt chưa cài đặt tiện ích MetaMask. Vui lòng cài MetaMask hoặc chuyển sang Chế độ Demo để thử nghiệm!");
+        return;
+      }
+
+      try {
+        setStatus("Đang gửi yêu cầu kết nối ví MetaMask...", "info");
+        provider = new ethers.BrowserProvider(window.ethereum);
+        
+        // Kiểm tra mạng Sepolia
+        const network = await provider.getNetwork();
+        if (Number(network.chainId) !== SEPOLIA_CHAIN_ID) {
+          btnSwitchNetwork.style.display = "flex";
+          setStatus("Vui lòng chuyển ví sang mạng Sepolia Testnet!", "error");
+          await switchNetwork();
+        }
+
+        await provider.send("eth_requestAccounts", []);
+        signer = await provider.getSigner();
+        userAddress = await signer.getAddress();
+
+        // Giao diện
+        btnConnect.style.display = "none";
+        walletBadge.style.display = "flex";
+        accountEl.textContent = `${userAddress.slice(0, 6)}...${userAddress.slice(-4)}`;
+        setStatus(`Đã kết nối ví thành công: ${userAddress.slice(0, 10)}...`, "success");
+
+        // Khởi tạo Smart Contract
+        contract = new ethers.Contract(DEFAULT_CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+        await refreshOnChainData();
+
+        // Bắt sự kiện đổi tài khoản / mạng
+        window.ethereum.on("accountsChanged", (accounts) => {
+          if (accounts.length === 0) location.reload();
+          else location.reload();
+        });
+        window.ethereum.on("chainChanged", () => location.reload());
+
+      } catch (err) {
+        console.error(err);
+        setStatus(parseCustomError(err), "error");
+      }
+    };
+
+    // ==========================================
+    // CHUYỂN MẠNG SEPOLIA
+    // ==========================================
+    async function switchNetwork() {
+      try {
+        await window.ethereum.request({
+          method: "wallet_switchEthereumChain",
+          params: [{ chainId: SEPOLIA_HEX }]
+        });
+        btnSwitchNetwork.style.display = "none";
+        networkBadge.textContent = "Sepolia (11155111)";
+        setStatus("Đã chuyển sang mạng Sepolia thành công!", "success");
+      } catch (switchError) {
+        if (switchError.code === 4902) {
+          try {
+            await window.ethereum.request({
+              method: "wallet_addEthereumChain",
+              params: [{
+                chainId: SEPOLIA_HEX,
+                chainName: "Sepolia Test Network",
+                nativeCurrency: { name: "Sepolia ETH", symbol: "ETH", decimals: 18 },
+                rpcUrls: ["https://rpc.sepolia.org"],
+                blockExplorerUrls: ["https://sepolia.etherscan.io"]
+              }]
+            });
+          } catch (addError) {
+            setStatus("Không thể thêm mạng Sepolia vào MetaMask.", "error");
+          }
+        } else {
+          setStatus("Chuyển mạng bị hủy hoặc từ chối.", "error");
+        }
+      }
+    }
+
+    // ==========================================
+    // ĐỌC DỮ LIỆU ON-CHAIN THỰC TẾ
+    // ==========================================
+    async function refreshOnChainData() {
+      if (!contract) return;
+      try {
+        setStatus("Đang đồng bộ dữ liệu từ Ethereum Sepolia...", "info");
+        
+        const [
+          cCreator,
+          cGoal,
+          cCap,
+          cDeadline,
+          cMin,
+          cMax,
+          cTotal,
+          cState
+        ] = await Promise.all([
+          contract.creator(),
+          contract.fundingGoal(),
+          contract.fundingCap(),
+          contract.deadline(),
+          contract.minContribution(),
+          contract.maxContributionPerWallet(),
+          contract.totalRaised(),
+          contract.state()
+        ]);
+
+        campaignData.creator = cCreator;
+        campaignData.goal = parseFloat(ethers.formatEther(cGoal));
+        campaignData.cap = parseFloat(ethers.formatEther(cCap));
+        campaignData.deadline = Number(cDeadline);
+        campaignData.minContribution = parseFloat(ethers.formatEther(cMin));
+        campaignData.maxContribution = parseFloat(ethers.formatEther(cMax));
+        campaignData.totalRaised = parseFloat(ethers.formatEther(cTotal));
+        campaignData.state = Number(cState);
+
+        if (userAddress) {
+          const userContrib = await contract.contributions(userAddress);
+          campaignData.userPledged = parseFloat(ethers.formatEther(userContrib));
+        }
+
+        minContributionText.textContent = campaignData.minContribution;
+        maxContributionText.textContent = campaignData.maxContribution;
+
+        updateUI();
+        startCountdown();
+        setStatus("Dữ liệu On-chain đã được cập nhật mới nhất!", "success");
+      } catch (err) {
+        console.warn("Không tải được dữ liệu on-chain trực tiếp:", err);
+        setStatus("Đang hiển thị dữ liệu dự án mặc định (Hợp đồng: 0x71C3...7A48).", "info");
+        updateUI();
+        startCountdown();
+      }
+    }
+
+    // ==========================================
+    // HÀM 1: ĐÓNG GÓP QUỸ PLEDGE
+    // ==========================================
+    async function handlePledge() {
+      const valStr = document.getElementById("amount").value;
+      const amountVal = parseFloat(valStr);
+
+      if (isNaN(amountVal) || amountVal <= 0) {
+        return setStatus("Vui lòng nhập số ETH hợp lệ muốn nạp!", "error");
+      }
+
+      if (amountVal < 0.001) {
+        return setStatus("Vi phạm quy tắc: Mức đóng góp tối thiểu là 0.001 ETH!", "error");
+      }
+
+      if (amountVal > 0.25) {
+        return setStatus("Vi phạm rào cản trần ví: Không được nạp quá 0.25 ETH (25% mục tiêu)!", "error");
+      }
+
+      // Xử lý chế độ Demo
+      if (isMockMode) {
+        btnPledge.innerHTML = '<span class="spinner"></span> Đang xác nhận...';
+        btnPledge.disabled = true;
+        setTimeout(() => {
+          campaignData.totalRaised += amountVal;
+          campaignData.userPledged += amountVal;
+          if (campaignData.totalRaised >= campaignData.goal) {
+            campaignData.state = 1; // Succeeded
+          }
+          btnPledge.innerHTML = '<span>Nạp Quỹ Vào Chiến Dịch (Pledge)</span>';
+          btnPledge.disabled = false;
+          setStatus(`🎉 [DEMO] Nạp thành công ${amountVal} ETH vào chiến dịch! TxHash: 0x9f8c...demo`, "success");
+          updateUI();
+        }, 1000);
+        return;
+      }
+
+      // Xử lý thật qua MetaMask
+      if (!contract) {
+        return setStatus("Vui lòng kết nối ví MetaMask trước khi nạp quỹ!", "error");
+      }
+
+      try {
+        btnPledge.innerHTML = '<span class="spinner"></span> Đang chờ ký ví...';
+        btnPledge.disabled = true;
+        setStatus("Vui lòng xác nhận giao dịch trên tiện ích MetaMask...", "info");
+
+        const tx = await contract.pledge({
+          value: ethers.parseEther(valStr)
+        });
+
+        setStatus(`Giao dịch đã phát sóng! TxHash: ${tx.hash.slice(0, 16)}... Đang chờ xác nhận khối...`, "info");
+        const receipt = await tx.wait();
+
+        setStatus(`🎉 Chúc mừng! Đã nạp thành công ${amountVal} ETH vào chiến dịch! (Block ${receipt.blockNumber})`, "success");
+        await refreshOnChainData();
+      } catch (err) {
+        console.error(err);
+        setStatus(parseCustomError(err), "error");
+      } finally {
+        btnPledge.innerHTML = '<span>Nạp Quỹ Vào Chiến Dịch (Pledge)</span>';
+        btnPledge.disabled = false;
+      }
+    }
+
+    // ==========================================
+    // HÀM 2: CHỦ DỰ ÁN RÚT TIỀN (CLAIM FUNDS)
+    // ==========================================
+    async function handleClaimFunds() {
+      if (isMockMode) {
+        btnClaimFunds.innerHTML = '<span class="spinner"></span> Đang giải ngân...';
+        btnClaimFunds.disabled = true;
+        setTimeout(() => {
+          campaignData.state = 3; // Claimed
+          btnClaimFunds.innerHTML = '<span>Chủ Dự Án Rút Tiền (Claim Funds)</span>';
+          btnClaimFunds.disabled = true;
+          setStatus(`🏆 [DEMO] Chủ nhiệm dự án đã rút toàn bộ ${campaignData.totalRaised.toFixed(3)} ETH về ví thành công!`, "success");
+          updateUI();
+        }, 1200);
+        return;
+      }
+
+      if (!contract) return setStatus("Vui lòng kết nối ví MetaMask!", "error");
+
+      try {
+        btnClaimFunds.innerHTML = '<span class="spinner"></span> Đang gửi lệnh...';
+        btnClaimFunds.disabled = true;
+        setStatus("Đang gửi lệnh rút quỹ cho chủ nhiệm dự án...", "info");
+
+        const tx = await contract.claimFunds();
+        setStatus(`Lệnh giải ngân đã phát sóng: ${tx.hash.slice(0, 16)}... Đang xác nhận...`, "info");
+        await tx.wait();
+
+        setStatus("🏆 Giải ngân thành công! Toàn bộ quỹ đã được chuyển về ví của chủ nhiệm dự án.", "success");
+        await refreshOnChainData();
+      } catch (err) {
+        console.error(err);
+        setStatus(parseCustomError(err), "error");
+      } finally {
+        btnClaimFunds.innerHTML = '<span>Chủ Dự Án Rút Tiền (Claim Funds)</span>';
+        btnClaimFunds.disabled = false;
+      }
+    }
+
+    // ==========================================
+    // HÀM 3: RÚT HOÀN TIỀN (CLAIM REFUND)
+    // ==========================================
+    async function handleClaimRefund() {
+      if (isMockMode) {
+        if (campaignData.userPledged <= 0) {
+          return setStatus("[DEMO] Bạn không có số dư đóng góp nào để hoàn tiền!", "error");
+        }
+        btnClaimRefund.innerHTML = '<span class="spinner"></span> Đang hoàn tiền...';
+        btnClaimRefund.disabled = true;
+        setTimeout(() => {
+          const refunded = campaignData.userPledged;
+          campaignData.userPledged = 0;
+          btnClaimRefund.innerHTML = '<span>Rút Lại 100% Hoàn Tiền (Claim Refund)</span>';
+          setStatus(`🛡️ [DEMO] Cơ chế All-or-Nothing đã hoàn trả 100% (${refunded} ETH) về ví của bạn!`, "success");
+          updateUI();
+        }, 1200);
+        return;
+      }
+
+      if (!contract) return setStatus("Vui lòng kết nối ví MetaMask!", "error");
+
+      try {
+        btnClaimRefund.innerHTML = '<span class="spinner"></span> Đang gửi yêu cầu...';
+        btnClaimRefund.disabled = true;
+        setStatus("Đang gửi giao dịch yêu cầu hoàn tiền bảo chứng...", "info");
+
+        const tx = await contract.claimRefund();
+        setStatus(`Yêu cầu hoàn tiền đã phát sóng: ${tx.hash.slice(0, 16)}...`, "info");
+        await tx.wait();
+
+        setStatus("🛡️ Hoàn tiền 100% thành công! Tiền đã được Smart Contract chuyển trả về ví của bạn.", "success");
+        await refreshOnChainData();
+      } catch (err) {
+        console.error(err);
+        setStatus(parseCustomError(err), "error");
+      } finally {
+        btnClaimRefund.innerHTML = '<span>Rút Lại 100% Hoàn Tiền (Claim Refund)</span>';
+        btnClaimRefund.disabled = false;
+      }
+    }
+
+    // ==========================================
+    // CHUYỂN ĐỔI CHẾ ĐỘ DEMO / SEPOLIA THẬT
+    // ==========================================
+    function switchMode(mock) {
+      isMockMode = mock;
+      document.getElementById("btnModeReal").classList.toggle("active", !mock);
+      document.getElementById("btnModeMock").classList.toggle("active", mock);
+
+      if (mock) {
+        networkBadge.textContent = "Mô phỏng Demo (Offline)";
+        networkBadge.style.color = "var(--accent-amber)";
+        btnConnect.style.display = "flex";
+        btnConnectText.textContent = "Bật Ví Demo";
+        walletBadge.style.display = "none";
+        setStatus("⚡ Đã kích hoạt Chế độ Trình diễn 5 Phút. Bạn có thể test mượt mà không cần nạp Sepolia ETH thật!", "info");
+        campaignData.totalRaised = 0.85; // Tạo sẵn 85% để demo dễ chạm mốc 100%
+        campaignData.userPledged = 0.15;
+        campaignData.state = 0;
+        updateUI();
+        startCountdown();
+      } else {
+        networkBadge.textContent = "Sepolia (11155111)";
+        networkBadge.style.color = "var(--text-muted)";
+        btnConnect.style.display = "flex";
+        btnConnectText.textContent = "Kết nối ví MetaMask";
+        walletBadge.style.display = "none";
+        setStatus("Đã chuyển sang chế độ Sepolia Testnet thật. Hãy kết nối ví MetaMask.", "info");
+        updateUI();
+        startCountdown();
+      }
+    }
+
+    // Khởi tạo ban đầu
+    window.addEventListener("DOMContentLoaded", () => {
+      updateUI();
+      startCountdown();
+    });
+  </script>
 </body>
 </html>

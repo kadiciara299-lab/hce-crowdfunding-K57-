@@ -50,16 +50,25 @@ hce-crowdfunding-K57-/
 2. Tải tệp `contracts/project/ProjectCore.sol` lên thư mục làm việc của Remix.
 3. Trong tab **Solidity Compiler**, chọn phiên bản `0.8.20` trở lên và bấm **Compile ProjectCore.sol**.
 4. Trong tab **Deploy & Run Transactions**:
-   - Chọn môi trường: **Remix VM (Cancun / Shanghai)** để thử nghiệm tức thì miễn phí, hoặc **Injected Provider - MetaMask** để triển khai lên mạng thử nghiệm Sepolia.
-   - Điền tham số Constructor:
-     - `_goalInWei`: Ví dụ `1000000000000000000` (1 ETH).
-     - `_durationSeconds`: Ví dụ `259200` (3 ngày tính bằng giây).
-     - `_minContributionInWei`: Ví dụ `1000000000000000` (0.001 ETH).
+   - Môi trường: Chọn **Injected Provider - MetaMask** (Sepolia Testnet) hoặc **Remix VM**.
+   - Điền tham số khởi tạo:
+     - `_goalInWei`: `1000000000000000000` (1 ETH).
+     - `_durationSeconds`: `604800` (7 ngày).
+     - `_minContributionInWei`: `1000000000000000` (0.001 ETH).
    - Bấm **Deploy**.
 
-### 3.2. Chạy Giao diện DApp Cục bộ
-- Mở tệp `web/index.html` trực tiếp bằng trình duyệt Google Chrome hoặc Microsoft Edge đã cài đặt tiện ích MetaMask.
-- Kết nối ví và chuyển mạng sang **Sepolia Testnet**.
+### 3.2. Chạy Giao diện DApp Cục bộ & Trực tuyến
+- **Trực tuyến:** Truy cập DApp qua GitHub Pages: [`https://kadiciara299-lab.github.io/hce-crowdfunding-K57-/web/`](https://kadiciara299-lab.github.io/hce-crowdfunding-K57-/web/)
+- **Cục bộ:** Mở tệp `web/index.html` trực tiếp bằng trình duyệt Google Chrome hoặc Microsoft Edge đã cài đặt tiện ích MetaMask.
+
+### 3.3. Bảng Ánh xạ Nối Giao diện DApp với Hợp đồng (Theo chuẩn Lab 15)
+
+| Thành phần kỹ thuật | Giá trị cấu hình của nhóm HCE Student Crowdfund |
+| :--- | :--- |
+| **Địa chỉ Smart Contract (`CONTRACT_ADDRESS`)** | `0x71C3b7C8A9B2c21950b73De79A168f844bF97A48` (Mạng Sepolia Testnet) |
+| **Nguồn lấy ABI (`CONTRACT_ABI`)** | Biên dịch `ProjectCore.sol` (^0.8.20) trên Remix IDE -> Nút copy ABI |
+| **Hàm đọc không tốn phí (View Calls)** | `creator()`, `fundingGoal()`, `fundingCap()`, `deadline()`, `minContribution()`, `maxContributionPerWallet()`, `totalRaised()`, `state()`, `contributions(address)`, `timeLeft()` |
+| **Hàm ghi cần ký xác nhận ví (Gas Tx)** | `pledge()` (gửi ETH nạp quỹ), `claimFunds()` (giải ngân cho chủ dự án), `claimRefund()` (rút hoàn tiền 100% khi thất bại) |
 
 ---
 
@@ -76,7 +85,7 @@ hce-crowdfunding-K57-/
 ## 📁 5. Danh mục sản phẩm & Lộ trình triển khai Đồ án (Lab 8 – 15)
 
 | Giai đoạn | Sản phẩm bàn giao | Mô tả nghiệp vụ & Kỹ thuật | Trạng thái |
-| :---: | :--- | :--- | :---: |
+| :--- | :--- | :--- | :---: |
 | **Lab 8** | [`docs/PROJECT_PLAN.md`](./docs/PROJECT_PLAN.md)<br>[`docs/SPEC.md`](./docs/SPEC.md)<br>[`docs/ECONOMIC_RULES.md`](./docs/ECONOMIC_RULES.md)<br>[`docs/AI_JOURNAL.md`](./docs/AI_JOURNAL.md)<br>[`lab08.md`](./lab08.md)<br>[`contracts/project/ProjectCore.sol`](./contracts/project/ProjectCore.sol) | Khởi động đồ án Chủ đề 5 (**HCE Student Crowdfund**), chuẩn hóa cấu trúc repo Phần B.6; hoàn thiện đặc tả BA v0.1 (8 quy tắc R1–R8, 9 ngoại lệ); thiết kế kinh tế All-or-Nothing, sàn 0.001 ETH, trần 25% và 5 kịch bản phản biện lạm dụng | ✅<br>**Hoàn thành** |
 | **Lab 9** | [`contracts/project/ProjectCore.sol`](./contracts/project/ProjectCore.sol)<br>[`contracts/training/TimeLockVault.sol`](./contracts/training/TimeLockVault.sol)<br>[`lab09.md`](./lab09.md) | Hiện thực hóa máy trạng thái gây quỹ (`Active`, `Successful`, `Failed`, `Claimed`), cơ chế bảo chứng cam kết (Assurance Escrow); chuyển ETH an toàn bằng `call{value}`, đo đạc bảng tiêu thụ gas trên Remix VM | ✅<br>**Hoàn thành** |
 | **Lab 10** | [`lab10.md`](./lab10.md)<br>[`docs/AI_JOURNAL.md`](./docs/AI_JOURNAL.md)<br>[`contracts/training/VaultBuggy.sol`](./contracts/training/VaultBuggy.sol)<br>[`contracts/project/ProjectCore.sol`](./contracts/project/ProjectCore.sol) *(v2)* | Rà soát mã nguồn do AI sinh ra, giải mã Storage Layout & Slot 2 (VaultBuggy); nhận diện và sửa 3 lỗi tiềm ẩn (chống DoS lặp Push payment, triệt tiêu `transfer`); kiểm toán và tối ưu cấu trúc lưu trữ `ProjectCore` | ✅<br>**Hoàn thành** |
@@ -84,5 +93,5 @@ hce-crowdfunding-K57-/
 | **Lab 12** | [`test/test_gate_review.py`](./test/test_gate_review.py)<br>[`Do An/lab12.md`](./Do%20An/lab12.md)<br>[`docs/GATE_REVIEW_1.md`](./docs/GATE_REVIEW_1.md)<br>[`evidence/lab-12/`](./evidence/lab-12/) | Vượt qua cổng duyệt bắt buộc **GATE REVIEW 1**; kiểm tra sức khỏe repo 5/5 tiêu chí; demo 3 phút chứng minh luồng thành công và 4 ca gian lận/vi phạm; thống nhất thu hẹp phạm vi và chốt phân vai xoay vòng Lab 13–15 | ✅<br>**Hoàn thành** |
 | **Lab 13** | [`contracts/training/VulnerableBank.sol`](./contracts/training/VulnerableBank.sol)<br>[`contracts/training/SafeBank.sol`](./contracts/training/SafeBank.sol)<br>[`contracts/project/AttackCrowdfund.sol`](./contracts/project/AttackCrowdfund.sol)<br>[`contracts/project/ProjectCore.sol`](./contracts/project/ProjectCore.sol)<br>[`test/test_lab13_hardening.py`](./test/test_lab13_hardening.py)<br>[`Do An/lab13.md`](./Do%20An/lab13.md)<br>[`evidence/lab-13/`](./evidence/lab-13/) | Thực nghiệm rút cạn $6 \text{ ETH}$ qua lỗ hổng Reentrancy; giải mã cơ chế bằng Prompt I.4; vá lỗi bằng 2 phương pháp CEI & ReentrancyGuard; gia cố phòng thủ hai lớp cho `ProjectCore.sol` (149 dòng); 8 ca Negative Tests đạt 100% | ✅<br>**Hoàn thành** |
 | **Lab 14** | [`docs/AUDIT_REPORT.md`](./docs/AUDIT_REPORT.md)<br>[`Do An/lab14.md`](./Do%20An/lab14.md)<br>[`evidence/lab-14/`](./evidence/lab-14/)<br>[`test/test_audit_findings.py`](./test/test_audit_findings.py)<br>[`contracts/project/ProjectCore.sol`](./contracts/project/ProjectCore.sol) | Kiểm toán chéo bảo mật vòng tròn: Rà soát Nhóm 6 (phát hiện 4 lỗi: Reentrancy, Basis points, address(0), Event); tiếp nhận báo cáo từ Nhóm 4, giải trình nghiệp vụ và tối ưu `CampaignCreated` trong `ProjectCore.sol` (149 dòng) | ✅<br>**Hoàn thành** |
-| **Lab 15** | [`contracts/project/ProjectCore.sol`](./contracts/project/ProjectCore.sol) *(Sepolia)*<br>[`docs/PRESENTATION_PLAN.md`](./docs/PRESENTATION_PLAN.md)<br>[`lab15.md`](./lab15.md) | Triển khai hợp đồng chính thức lên Sepolia Testnet, xuất bản Web3 DApp lên GitHub Pages tương tác trên thiết bị di động; hoàn thiện slide & kịch bản thuyết trình demo sản phẩm 5 phút phân vai từng giây | 🔄<br>**Sắp triển khai** |
+| **Lab 15** | [`web/index.html`](./web/index.html)<br>[`Do An/lab15.md`](./Do%20An/lab15.md)<br>[`docs/PRESENTATION_PLAN.md`](./docs/PRESENTATION_PLAN.md)<br>[`evidence/lab-15/`](./evidence/lab-15/) | Xây dựng giao diện Web3 DApp chuyên nghiệp, chuẩn Responsive trên điện thoại di động; kết nối ví MetaMask trên Sepolia Testnet; tích hợp đầy đủ ABI và xử lý lỗi người dùng tiếng Việt thân thiện; hoàn tất kịch bản demo 5 phút phân vai từng giây | ✅<br>**Hoàn thành** |
 

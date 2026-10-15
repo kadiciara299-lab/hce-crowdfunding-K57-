@@ -76,5 +76,21 @@
 
 ---
 
+### 4. Xử lý kết quả Audit Chéo với Nhóm 4 (Lab 14)
+- **Tình huống:** Nhóm 4 đề xuất cho phép rút tiền sớm trước hạn chót khi gom đủ tiền.
+- **Phản biện & Quyết định:** Nhóm từ chối sửa logic này vì vi phạm nguyên tắc bảo chứng All-or-Nothing (cần đợi hết hạn để kiểm tra gian lận self-pledge). Tuy nhiên, nhóm đã tối ưu hóa sự kiện `CampaignCreated(creator, goal, cap, deadline)` để DApp Web3 nhận diện tức thì các thông số cốt lõi. Hợp đồng giữ nguyên vẹn ở mức tối ưu 149 dòng.
+
+---
+
+### 5. Tích hợp Web3 DApp và Xử lý Lỗi Tùy biến (Lab 15)
+- **Vấn đề:** Giao diện Web3 DApp khi tương tác với Smart Contract hay gặp lỗi tiếng Anh kỹ thuật hoặc chuỗi mã lỗi HEX từ EVM, gây bối rối cho người dùng thông thường.
+- **Giải pháp AI & Sinh viên cùng làm:**
+  - AI cung cấp khung hàm giải mã `parseCustomError(error)` dựa trên ABI Ethers v6.
+  - Sinh viên hoàn thiện bộ từ điển ánh xạ 11 lỗi nghiệp vụ sang tiếng Việt lịch sự, dễ hiểu (ví dụ: cảnh báo trần ví 25%, cảnh báo sàn 0.001 ETH, cảnh báo chưa hết hạn).
+  - Sinh viên phát hiện rủi ro mạng nghẽn Sepolia và yêu cầu xây dựng thêm **Chế độ Demo 5 Phút (Offline Simulation)** tích hợp sẵn trên Web DApp để buổi báo cáo trước Hội đồng diễn ra trôi chảy 100%.
+
+---
+
 ## KẾT LUẬN
-Quá trình rà soát tại Lab 10 chứng minh tầm quan trọng của việc hiểu sâu bản chất EVM và logic nghiệp vụ. Công cụ AI hỗ trợ rất tốt trong việc quét cú pháp và lỗi thường gặp, nhưng các lỗi liên quan đến kiến trúc lưu trữ (`Storage Layout`) và rủi ro kinh tế tinh vi đòi hỏi sinh viên phải trực tiếp làm chủ và đối chiếu.
+Quá trình rà soát qua các bài Lab chứng minh tầm quan trọng của việc hiểu sâu bản chất EVM và logic nghiệp vụ. Công cụ AI hỗ trợ rất tốt trong việc quét cú pháp và gợi ý mã nguồn, nhưng các lỗi liên quan đến kiến trúc lưu trữ, rào cản kinh tế và trải nghiệm người dùng thực tế đòi hỏi sinh viên phải trực tiếp làm chủ và đối chiếu.
+
