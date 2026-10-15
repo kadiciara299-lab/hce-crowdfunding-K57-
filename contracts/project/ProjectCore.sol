@@ -11,6 +11,7 @@ contract ProjectCore {
     // 2. Bien trang thai bat bien va luu tru
     address public immutable creator;
     uint256 public immutable fundingGoal;
+    uint256 public immutable fundingCap; // Tran cung 120% muc tieu (12000 bps)
     uint256 public immutable deadline;
     uint256 public immutable minContribution;
     uint256 public immutable maxContributionPerWallet;
@@ -33,6 +34,7 @@ contract ProjectCore {
     error CampaignEnded(uint256 deadline, uint256 currentTime);
     error ContributionTooLow(uint256 sent, uint256 minRequired);
     error ExceedsMaxContribution(uint256 attempted, uint256 limit);
+    error ExceedsFundingCap(uint256 attemptedTotal, uint256 cap);
     error OnlyCreatorAllowed();
     error GoalNotMet(uint256 raised, uint256 goal);
     error CampaignStillActive(uint256 timeLeft);
@@ -53,9 +55,12 @@ contract ProjectCore {
 
         creator = msg.sender;
         fundingGoal = _goalInWei;
+        fundingCap = (_goalInWei * 120) / 100; // Tran cung 120%
         deadline = block.timestamp + _durationSeconds;
         minContribution = _minContributionInWei > 0 ? _minContributionInWei : 0.001 ether;
         maxContributionPerWallet = (_goalInWei * 25) / 100; // Tran 25% muc tieu
+        // Ngan chan Deadlock: Tran dong gop phai lon hon hoac bang san dong gop
+        if (maxContributionPerWallet < minContribution) revert InvalidGoal();
         state = State.Active;
 
         emit CampaignCreated(creator, fundingGoal, deadline);
@@ -67,6 +72,7 @@ contract ProjectCore {
         if (block.timestamp >= deadline) revert CampaignEnded(deadline, block.timestamp);
         if (state != State.Active) revert CampaignEnded(deadline, block.timestamp);
         if (msg.value < minContribution) revert ContributionTooLow(msg.value, minContribution);
+        if (totalRaised + msg.value > fundingCap) revert ExceedsFundingCap(totalRaised + msg.value, fundingCap);
 
         uint256 newTotalContribution = contributions[msg.sender] + msg.value;
         if (newTotalContribution > maxContributionPerWallet) {
@@ -85,9 +91,8 @@ contract ProjectCore {
         // 1. Checks
         if (msg.sender != creator) revert OnlyCreatorAllowed();
         if (state == State.Claimed) revert AlreadyClaimed();
-        if (block.timestamp < deadline && totalRaised < fundingGoal) {
-            revert CampaignStillActive(deadline - block.timestamp);
-        }
+        // Bat buoc phai qua han chot moi duoc giai ngan theo quy tac R4
+        if (block.timestamp < deadline) revert CampaignStillActive(deadline - block.timestamp);
         if (totalRaised < fundingGoal) revert GoalNotMet(totalRaised, fundingGoal);
 
         // 2. Effects

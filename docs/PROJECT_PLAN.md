@@ -50,23 +50,38 @@ gantt
     dateFormat  YYYY-MM-DD
     section Giai đoạn 1: Nền tảng
     Lab 08: Thiết kế kế hoạch & Quy tắc kinh tế   :done,    des1, 2026-10-04, 2026-10-05
-    Lab 09: Lập trình Smart Contract lõi          :active,  des2, 2026-10-06, 2026-10-08
-    Lab 10: Audit mã nguồn AI & Sửa lỗi           :         des3, 2026-10-09, 2026-10-11
-    Lab 11: Cài đặt quy tắc kinh tế & Test        :         des4, 2026-10-12, 2026-10-14
+    Lab 09: Lập trình Smart Contract lõi          :done,    des2, 2026-10-06, 2026-10-08
+    Lab 10: Audit mã nguồn AI & Sửa lỗi           :done,    des3, 2026-10-09, 2026-10-11
+    Lab 11: Cài đặt quy tắc kinh tế & Test        :done,    des4, 2026-10-12, 2026-10-14
     section Giai đoạn 2: Thẩm định & Mở rộng
-    Lab 12: GATE REVIEW 1 (Duyệt Codebase & Phạm vi) :crit,   des5, 2026-10-15, 2026-10-16
-    Lab 13: Thực nghiệm tấn công Reentrancy & Vá lỗi:         des6, 2026-10-17, 2026-10-19
+    Lab 12: GATE REVIEW 1 (Duyệt Codebase & Phạm vi) :done, crit, des5, 2026-10-15, 2026-10-16
+    Lab 13: Thực nghiệm tấn công Reentrancy & Vá lỗi:active,  des6, 2026-10-17, 2026-10-19
     Lab 14: Rà soát chéo hợp đồng giữa các nhóm    :         des7, 2026-10-20, 2026-10-22
     Lab 15: Hoàn thiện DApp, Deploy & Demo        :crit,    des8, 2026-10-23, 2026-10-25
 ```
 
-| Mốc bài Lab | Mục tiêu kỹ thuật & Sản phẩm đầu ra | Tiêu chí nghiệm thu (Acceptance Criteria) | Người chịu trách nhiệm chính |
-| :--- | :--- | :--- | :---: |
-| **Lab 8** *(Hiện tại)* | Khởi tạo codebase nhóm, kế hoạch dự án, đặc tả v0.1 và mô hình kinh tế | Repo nhóm có đủ 5 tệp trong `docs/`, cấu trúc thư mục chuẩn Phần B.6, hoàn thành phản biện mô hình kinh tế. | Hoàng Mạnh Tường |
-| **Lab 9** | Hợp đồng lõi `ProjectCore.sol` biên dịch thành công trên Remix | Biên dịch Solidity ^0.8.20 không lỗi; thực hiện trọn vẹn luồng nạp và rút trên Remix VM; đo đạc bảng gas. | Nguyễn Nguyên Phương |
-| **Lab 10** | Audit mã nguồn do AI sinh ra, nhận diện và sửa lỗi tiềm ẩn | Tìm ra ít nhất 3/4 lỗi cài cắm; ghi nhật ký `AI_JOURNAL.md` đối chiếu người phát hiện vs AI. | Hoàng Mạnh Tường |
-| **Lab 11** | Cài đặt các quy tắc kinh tế vào contract và kiểm thử tự động | Cài đặt sàn/trần đóng góp và trần vượt quỹ; 1 test pass hợp lệ, 1 test revert vi phạm. | Nguyễn Nguyên Phương |
-| **Lab 12** | **GATE REVIEW 1: Duyệt Codebase và Phạm vi** | Vượt qua cổng duyệt trực tiếp với giảng viên; demo 3 phút chứng minh luồng chính và ca vi phạm. | Cả 2 thành viên |
-| **Lab 13** | Thực nghiệm tấn công mất tiền (Reentrancy Attack) và vá lỗi triệt để | Viết contract tấn công rút cạn quỹ; áp dụng Checks-Effects-Interactions vá lỗi; giải thích cơ chế. | Nguyễn Nguyên Phương |
-| **Lab 14** | Rà soát chéo bảo mật với nhóm bạn | Lập báo cáo `AUDIT_REPORT.md` cho nhóm bạn theo bảng 10 tiêu chí; tiếp nhận và sửa lỗi cho nhóm mình. | Hoàng Mạnh Tường |
-| **Lab 15** | Đưa DApp lên mạng công khai, kết nối ví và kịch bản thuyết trình | Deploy giao diện lên GitHub Pages; tương tác thành công trên điện thoại di động qua testnet Sepolia. | Cả 2 thành viên |
+| Mốc bài Lab | Mục tiêu kỹ thuật & Sản phẩm đầu ra | Tiêu chí nghiệm thu (Acceptance Criteria) | Người chịu trách nhiệm chính | Trạng thái nghiệm thu |
+| :--- | :--- | :--- | :---: | :---: |
+| **Lab 8** | Khởi tạo codebase nhóm, kế hoạch dự án, đặc tả v0.1 và mô hình kinh tế | Repo nhóm có đủ 5 tệp trong `docs/`, cấu trúc thư mục chuẩn Phần B.6, hoàn thành phản biện mô hình kinh tế. | Hoàng Mạnh Tường | ✅ **Hoàn thành** |
+| **Lab 9** | Hợp đồng lõi `ProjectCore.sol` biên dịch thành công trên Remix | Biên dịch Solidity ^0.8.20 không lỗi; thực hiện trọn vẹn luồng nạp và rút trên Remix VM; đo đạc bảng gas. | Nguyễn Nguyên Phương | ✅ **Hoàn thành** |
+| **Lab 10** | Audit mã nguồn do AI sinh ra, nhận diện và sửa lỗi tiềm ẩn | Tìm ra ít nhất 3/4 lỗi cài cắm; ghi nhật ký `AI_JOURNAL.md` đối chiếu người phát hiện vs AI. | Hoàng Mạnh Tường | ✅ **Hoàn thành** |
+| **Lab 11** | Cài đặt các quy tắc kinh tế vào contract và kiểm thử tự động | Cài đặt sàn/trần đóng góp và trần vượt quỹ; 1 test pass hợp lệ, 1 test revert vi phạm. | Nguyễn Nguyên Phương | ✅ **Hoàn thành** |
+| **Lab 12** *(Hiện tại)* | **GATE REVIEW 1: Duyệt Codebase và Phạm vi** | Vượt qua cổng duyệt trực tiếp với giảng viên; demo 3 phút chứng minh luồng chính và ca vi phạm; tệp `docs/GATE_REVIEW_1.md`. | **Cả 2 thành viên** | 🏆 **QUA (PASS) - Xuất sắc** |
+| **Lab 13** | Thực nghiệm tấn công mất tiền (Reentrancy Attack) và vá lỗi triệt để | Viết contract tấn công rút cạn quỹ; áp dụng Checks-Effects-Interactions vá lỗi; giải thích cơ chế; thêm ReentrancyGuard. | Nguyễn Nguyên Phương *(Red Team)*<br>Hoàng Mạnh Tường *(Contract Dev)* | 🔄 **Đang thực hiện** |
+| **Lab 14** | Rà soát chéo bảo mật với nhóm bạn | Lập báo cáo `AUDIT_REPORT.md` cho nhóm bạn theo bảng 10 tiêu chí; tiếp nhận và sửa lỗi cho nhóm mình. | Hoàng Mạnh Tường *(Lead Reviewer)*<br>Nguyễn Nguyên Phương *(Support)* | ⏳ **Sắp triển khai** |
+| **Lab 15** | Đưa DApp lên mạng công khai, kết nối ví và kịch bản thuyết trình | Deploy giao diện lên GitHub Pages; tương tác thành công trên điện thoại di động qua testnet Sepolia. | Hoàng Mạnh Tường *(Frontend/Deploy)*<br>Nguyễn Nguyên Phương *(Pitch/Demo)* | ⏳ **Sắp triển khai** |
+
+---
+
+## 4. Quyết định Gate Review 1 và Phạm vi Dự án sau Duyệt (Post-Review Scope)
+
+Theo biên bản chính thức [`docs/GATE_REVIEW_1.md`](./GATE_REVIEW_1.md):
+- **Kết luận:** **QUA (PASS) — ĐẠT MỨC GIỎI ⭐⭐⭐**.
+- **Phạm vi được chốt giữ lại (Core MVP):**
+  1. Hợp đồng `ProjectCore.sol` giữ độ tinh gọn ở mức **144 dòng** (< 150 dòng theo Bộ lọc duyệt phạm vi Phần N Sổ tay ECO2432).
+  2. Cơ chế cốt lõi: Gây quỹ bảo chứng cam kết (All-or-Nothing Escrow) với 4 rào cản kinh tế on-chain (sàn 0.001 ETH, trần ví 25%, trần cứng 120%, thời hạn 3–30 ngày).
+  3. Hoàn tiền tự động 100% cho người ủng hộ khi không gom đủ vốn; giải ngân trọn gói cho chủ dự án khi hoàn thành mục tiêu sau thời hạn.
+- **Tính năng cắt giảm để bảo toàn luồng cốt lõi:** Cắt bỏ tính năng Biểu quyết cộng đồng gia hạn chiến dịch (Voting Extension) và tính năng Giải ngân theo chặng (Milestone Tranches) để tránh làm phình to hợp đồng và ngăn chặn lỗi Gas DoS.
+- **Phân công xoay vai đã chốt:**
+  - **Hoàng Mạnh Tường:** Chuyển sang chủ trì phát triển Hợp đồng, vá lỗi bảo mật và xây dựng Web3 Frontend DApp.
+  - **Nguyễn Nguyên Phương:** Chuyển sang chủ trì Red Team Security (viết script/contract tấn công thực nghiệm Lab 13), phụ trách audit chéo Lab 14 và kịch bản thuyết trình Lab 15.

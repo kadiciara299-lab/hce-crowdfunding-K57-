@@ -1,0 +1,71 @@
+***************************************************************************
+🏛️  HỘI ĐỒNG GATE REVIEW 1: KIỂM TRA SỨC KHỎE REPO & DEMO 3 PHÚT
+     Dự án: HCE Student Crowdfund (Chủ đề 5 - Gây quỹ có hoàn tiền)
+     Sinh viên: Hoàng Mạnh Tường (23K4300042) & Nguyễn Nguyên Phương (23K4300034)
+***************************************************************************
+
+[KHỞI TẠO CHIẾN DỊCH]
+  - Chủ dự án (Creator):        0xCreatorWallet_HCE
+  - Mục tiêu gọi vốn:           1.0000 ETH
+  - Sàn đóng góp (min):         0.0010 ETH
+  - Trần đóng góp mỗi ví (25%): 0.2500 ETH
+  - Trần cứng huy động (120%):  1.2000 ETH
+  - Thời hạn chiến dịch:        7 ngày
+
+===========================================================================
+PHẦN 1: DEMO LUỒNG GIAN LẬN / VI PHẠM BỊ CHẶN (30 GIÂY DEMO)
+===========================================================================
+
+[CA 1 - DUST ATTACK] Kẻ xấu gửi 0.0005 ETH (< sàn 0.001 ETH)...
+  🛡️ BỊ CHẶN THÀNH CÔNG! Mã lỗi: ContributionTooLow(sent=0.0005 ETH, min=0.0010 ETH)
+
+[CA 2 - WHALE ATTACK] Tài phiệt gửi 0.35 ETH một lần (> trần ví 0.25 ETH)...
+  🛡️ BỊ CHẶN THÀNH CÔNG! Mã lỗi: ExceedsMaxContribution(attempted=0.3500 ETH, limit=0.2500 ETH)
+
+[CA 3 - EARLY WITHDRAWAL] Chủ dự án gọi claimFunds() trước ngày deadline...
+  🛡️ BỊ CHẶN THÀNH CÔNG! Mã lỗi: CampaignStillActive(timeLeft=604800 giây)
+
+[CA 4 - UNAUTHORIZED CLAIM] Kẻ lạ (0xImposter) gọi claimFunds()...
+  🛡️ BỊ CHẶN THÀNH CÔNG! Mã lỗi: OnlyCreatorAllowed: Caller 0xImposter không phải Creator 0xCreatorWallet_HCE
+
+===========================================================================
+PHẦN 2: DEMO LUỒNG CỐT LÕI THÀNH CÔNG (HAPPY PATH - 60 GIÂY DEMO)
+===========================================================================
+
+[BƯỚC 1] 4 sinh viên HCE cùng tham gia đóng góp hợp lệ:
+  ✅ 0xSinhVienA đã nạp 0.2500 ETH -> Event Pledged(contributor=0xSinhVienA, amount=0.2500 ETH, totalRaised=0.2500 ETH)
+  ✅ 0xSinhVienB đã nạp 0.2500 ETH -> Event Pledged(contributor=0xSinhVienB, amount=0.2500 ETH, totalRaised=0.5000 ETH)
+  ✅ 0xSinhVienC đã nạp 0.2500 ETH -> Event Pledged(contributor=0xSinhVienC, amount=0.2500 ETH, totalRaised=0.7500 ETH)
+  ✅ 0xSinhVienD đã nạp 0.2500 ETH -> Event Pledged(contributor=0xSinhVienD, amount=0.2500 ETH, totalRaised=1.0000 ETH)
+
+[TIẾN ĐỘ CHIẾN DỊCH] Tổng huy động: 1.0000 ETH / 1.0000 ETH (Đạt 100% mục tiêu!)
+
+[BƯỚC 2] Thời gian trôi qua 7 ngày (chiến dịch kết thúc thời hạn nhận quỹ)...
+  ⏳ Thời gian hiện tại đã vượt qua Deadline (Hạn chót: 1604800, Giờ HT: 1604801)
+
+[BƯỚC 3] Chủ dự án chính thức gọi claimFunds() để giải ngân kinh phí dự án:
+  🎉 GIẢI NGÂN THÀNH CÔNG! Event FundsClaimed(creator=0xCreatorWallet_HCE, totalAmount=1.0000 ETH)
+  Trạng thái hợp đồng chuyển sang: [Claimed]
+  Số dư còn lại trong quỹ: 0.0000 ETH
+
+===========================================================================
+PHẦN 3: DEMO LUỒNG HOÀN TIỀN TỰ ĐỘNG KHI THẤT BẠI (REFUND PATH)
+===========================================================================
+
+[TÌNH HUỐNG THẤT BẠI] Chiến dịch chỉ nhận được 0.20 ETH từ bạn 0xStudentX...
+  Tổng huy động: 0.2000 ETH (Dưới mục tiêu 1.0 ETH)
+  Thời gian trôi qua hết 7 ngày...
+
+[BƯỚC 1] Chủ dự án cố tình rút tiền khi không đạt mục tiêu:
+  🛡️ BỊ CHẶN: GoalNotMet(raised=0.2000 ETH, goal=1.0000 ETH)
+
+[BƯỚC 2] Bạn 0xStudentX gọi claimRefund() để lấy lại tiền:
+  💸 HOÀN TIỀN THÀNH CÔNG: Event RefundClaimed(contributor=0xStudentX, refundAmount=0.2000 ETH)
+  Số dư đóng góp còn lại của 0xStudentX: 0 wei
+
+[BƯỚC 3] Bạn 0xStudentX cố tình gọi claimRefund() lần 2 (Rút kép):
+  🛡️ BỊ CHẶN RÚT KÉP: NoContributionToRefund: Địa chỉ ví không có số dư đóng góp!
+
+***************************************************************************
+🏆 TỔNG KẾT GATE REVIEW 1: 100% CÁC TIÊU CHÍ KỸ THUẬT & NGHIỆP VỤ ĐẠT YÊU CẦU!
+***************************************************************************

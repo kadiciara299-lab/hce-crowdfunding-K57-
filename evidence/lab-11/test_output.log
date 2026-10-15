@@ -1,0 +1,56 @@
+============================================================
+KIỂM THỬ QUY TẮC KINH TẾ (LAB 11) - HCE STUDENT CROWDFUND
+============================================================
+Mục tiêu gọi vốn (fundingGoal):        1.0 ETH
+Sàn đóng góp tối thiểu (minContribution): 0.001 ETH
+Trần đóng góp mỗi ví (maxPerWallet):      0.25 ETH (25%)
+Trần cứng tối đa (fundingCap):            1.2 ETH (120%)
+------------------------------------------------------------
+
+--- CA KIỂM THỬ 1: Giao dịch hợp lệ (Happy Path) ---
+
+[GIAO DỊCH] Ví 0xAlice gửi 0.05 ETH...
+  ✅ THÀNH CÔNG! Phát event Pledged(contributor=0xAlice, amount=0.05 ETH, totalRaised=0.05 ETH)
+
+--- CA KIỂM THỬ 2: Vi phạm sàn đóng góp tối thiểu (0.0005 ETH < 0.001 ETH) ---
+
+[GIAO DỊCH] Ví 0xBob gửi 0.0005 ETH...
+  ❌ REVERT: ContributionTooLow(sent=0.0005 ETH, min=0.001 ETH)
+
+--- CA KIỂM THỬ 3: Vi phạm trần đóng góp tối đa mỗi ví (0.3 ETH > 0.25 ETH) ---
+
+[GIAO DỊCH] Ví 0xCharlie gửi 0.3 ETH...
+  ❌ REVERT: ExceedsMaxContribution(attempted=0.3 ETH, limit=0.25 ETH)
+
+--- CA KIỂM THỬ 4: Nạp hợp lệ tích lũy 2 lần chạm trần ví ---
+
+[GIAO DỊCH] Ví 0xDavid gửi 0.15 ETH...
+  ✅ THÀNH CÔNG! Phát event Pledged(contributor=0xDavid, amount=0.15 ETH, totalRaised=0.2 ETH)
+
+[GIAO DỊCH] Ví 0xDavid gửi 0.1 ETH...
+  ✅ THÀNH CÔNG! Phát event Pledged(contributor=0xDavid, amount=0.1 ETH, totalRaised=0.3 ETH)
+
+[GIAO DỊCH] Ví 0xDavid gửi 0.01 ETH...
+  ❌ REVERT: ExceedsMaxContribution(attempted=0.26 ETH, limit=0.25 ETH)
+
+--- CA KIỂM THỬ 5: Vi phạm trần cứng Hard Cap 120% ---
+
+[GIAO DỊCH] Ví 0xEva gửi 0.25 ETH...
+  ✅ THÀNH CÔNG! Phát event Pledged(contributor=0xEva, amount=0.25 ETH, totalRaised=0.55 ETH)
+
+[GIAO DỊCH] Ví 0xFrank gửi 0.25 ETH...
+  ✅ THÀNH CÔNG! Phát event Pledged(contributor=0xFrank, amount=0.25 ETH, totalRaised=0.8 ETH)
+
+[GIAO DỊCH] Ví 0xGrace gửi 0.25 ETH...
+  ✅ THÀNH CÔNG! Phát event Pledged(contributor=0xGrace, amount=0.25 ETH, totalRaised=1.05 ETH)
+
+[GIAO DỊCH] Ví 0xHenry gửi 0.1 ETH...
+  ✅ THÀNH CÔNG! Phát event Pledged(contributor=0xHenry, amount=0.1 ETH, totalRaised=1.15 ETH)
+Tổng quỹ hiện tại: 1.15 ETH
+
+[GIAO DỊCH] Ví 0xIvy gửi 0.1 ETH...
+  ❌ REVERT: ExceedsFundingCap(attempted=1.25 ETH, cap=1.2 ETH)
+
+============================================================
+KẾT QUẢ: 100% CA THỬ NGHIỆM ĐẠT CHUẨN! TẤT CẢ RÀO CẢN KINH TẾ ĐƯỢC THI THIẾT HÀNH CHÍNH XÁC.
+============================================================
