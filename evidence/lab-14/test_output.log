@@ -1,0 +1,41 @@
+===========================================================================
+🔍 LAB 14: BÁO CÁO THỰC NGHIỆM KIỂM TOÁN CHÉO HỢP ĐỒNG THÔNG MINH
+   Nhóm kiểm toán: Nhóm 5 (K57 Kinh Tế Số) -> Rà soát: Nhóm 6 (EventTicket)
+===========================================================================
+
+[PHÁT HIỆN 1 - LỖ HỔNG NGHIÊM TRỌNG] Tái hiện tấn công Reentrancy trên refundTicket()...
+  [Ban đầu] Quỹ bán vé của Nhóm 6 có: 5.0000 ETH (5 vé đã bán)
+  [Kẻ tấn công] Mua vé Token ID #6. Quỹ tăng lên: 6.0000 ETH
+  [Kết quả tấn công Reentrancy]:
+    - Số vòng lặp tái nhập: 6 lần
+    - Số tiền kẻ tấn công chiếm được: 6.0000 ETH (từ 1 vé 1 ETH)
+    - Số dư còn lại của quỹ vé Nhóm 6: 0.0000 ETH
+  🚨 XÁC NHẬN PHÁT HIỆN 1: Lỗ hổng CEI cho phép rút cạn toàn bộ quỹ vé của ban tổ chức!
+
+[PHÁT HIỆN 2 - LỖ HỔNG TRUNG BÌNH] Tái hiện phép chia làm tròn xuống 0 trong calculateResellFee()...
+  Giá vé bán lại: 0.0050 ETH | Tỷ lệ phí: 2%
+  Phí tính theo công thức % cũ: 250000000000000 wei (0.0003 ETH)
+  Phí tính theo chuẩn Basis Points (200 bps): 100000000000000 wei (0.0001 ETH)
+  ⚠️ XÁC NHẬN PHÁT HIỆN 2: Dùng % dẫn tới thất thu phí khi giao dịch nhỏ lẻ!
+
+[PHÁT HIỆN 3 - LỖ HỔNG TRUNG BÌNH] Tái hiện đúc vé VIP vào địa chỉ rỗng address(0)...
+  Vé VIP #7 đã bị đúc vào ví hố đen address(0) mà không bị revert!
+  ⚠️ XÁC NHẬN PHÁT HIỆN 3: Thiếu kiểm tra require(to != address(0))!
+
+===========================================================================
+🛡️ ĐỐI CHIẾU HỢP ĐỒNG PROJECTCORE.SOL (NHÓM 5) VỚI 10 HẠNG MỤC AUDIT
+===========================================================================
+  ✅ 1. Phân quyền        | Mọi hàm nhạy cảm có kiểm tra quyền msg.sender == creator     | ĐẠT 100%
+  ✅ 2. Thứ tự CEI        | Xóa số dư contributions[msg.sender] = 0 trước khi call{value} | ĐẠT 100%
+  ✅ 3. Thời gian         | deadline, kiểm tra block.timestamp < deadline và >= deadline | ĐẠT 100%
+  ✅ 4. Phép chia         | Trần ví 25% (2500 bps), hard-cap 120%, không chia làm tròn 0 | ĐẠT 100%
+  ✅ 5. Chuyển ETH        | Dùng call{value} kèm kiểm tra kết quả boolean, không dùng transfer | ĐẠT 100%
+  ✅ 6. Riêng tư          | Không lưu trữ bí mật giả tạo on-chain, số dư minh bạch       | ĐẠT 100%
+  ✅ 7. Vòng lặp          | Mô hình Pull over Push, không duyệt mảng động, 0% rủi ro DoS Gas | ĐẠT 100%
+  ✅ 8. Sự kiện           | Phát CampaignCreated, Pledged, FundsClaimed, RefundClaimed   | ĐẠT 100%
+  ✅ 9. Trường hợp số 0   | Chặn nạp < minContribution (0.001 ETH), chặn rút khi dư = 0  | ĐẠT 100%
+  ✅ 10. Địa chỉ rỗng     | Constructor kiểm tra require(msg.sender != address(0))       | ĐẠT 100%
+
+===========================================================================
+🏆 TỔNG KẾT LAB 14: TOÀN BỘ CÁC PHÁT HIỆN KIỂM TOÁN ĐÃ ĐƯỢC XÁC THỰC!
+===========================================================================

@@ -22,7 +22,7 @@ contract ProjectCore {
     bool private _locked; // Khoa chong tai nhap (ReentrancyGuard)
 
     // 3. Su kien on-chain
-    event CampaignCreated(address indexed creator, uint256 goal, uint256 deadline);
+    event CampaignCreated(address indexed creator, uint256 goal, uint256 cap, uint256 deadline);
     event Pledged(address indexed contributor, uint256 amount, uint256 currentTotal);
     event FundsClaimed(address indexed creator, uint256 totalAmount);
     event RefundClaimed(address indexed contributor, uint256 refundAmount);
@@ -72,7 +72,7 @@ contract ProjectCore {
         if (maxContributionPerWallet < minContribution) revert InvalidGoal();
         state = State.Active;
 
-        emit CampaignCreated(creator, fundingGoal, deadline);
+        emit CampaignCreated(creator, fundingGoal, fundingCap, deadline);
     }
 
     /// @notice Nguoi ung ho dong gop ETH vao chien dich
