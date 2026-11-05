@@ -22,8 +22,8 @@ Cả 2 thành viên trong nhóm đã được cấp quyền Collaborator và t�
 
 | Thành viên | Tài khoản GitHub | Vai trò đảm nhiệm | Minh chứng Commit đóng góp |
 | :--- | :--- | :--- | :--- |
-| **Hoàng Mạnh Tường** *(Lead)* | `@23k4300042-lang` | BA & Thiết kế Kinh tế *(kiêm QA)* | `feat(docs): thiet lap project plan, economic rules va spec v0.1` |
-| **Nguyễn Nguyên Phương** | `@kadiciara299-lab` | Smart Contract Developer *(kiêm Frontend)* | `feat(contract): khoi tao ProjectCore.sol v0.1 chuan AGENTS.md` |
+| **Hoàng Mạnh Tường** |MSV:23K4300042| *(Lead)* | `@23k4300042-lang` | BA & Thiết kế Kinh tế *(kiêm QA)* | `feat(docs): thiet lap project plan, economic rules va spec v0.1` |
+| **Nguyễn Nguyên Phương** |MSV:23K4300034 | `@kadiciara299-lab` | Smart Contract Developer *(kiêm Frontend)* | `feat(contract): khoi tao ProjectCore.sol v0.1 chuan AGENTS.md` |
 
 ---
 
