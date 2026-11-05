@@ -1,147 +1,242 @@
-# NHẬT KÝ LÀM VIỆC VỚI AI — Lab 8: Thiết kế Quy tắc Kinh tế cho Sản phẩm
+# NHẬT KÝ LÀM VIỆC VỚI AI — Lab 2: Ví và Giao dịch Đầu tiên
 
-**Học phần:** Tiền điện tử & Hợp đồng thông minh (ECO2432)  
-**Nhóm sinh viên:** K57 Kinh Tế Số — Trường Đại học Kinh tế, Đại học Huế  
-**Chủ đề:** Gây quỹ dự án sinh viên có hoàn tiền ([`hce-crowdfunding-K57-`](https://github.com/kadiciara299-lab/hce-crowdfunding-K57-))
-
----
-
-## Lần 1 — Khởi tạo Mô hình Kinh tế & Phát hiện Lỗi Push vs Pull Payment
-
+## Lần 1
 **Prompt:**  
-"Tôi đang thiết kế một hợp đồng gây quỹ cộng đồng cho sinh viên bằng Solidity 0.8.20. Khi chiến dịch thất bại (hết hạn mà không gom đủ mục tiêu), hãy viết một hàm để hợp đồng tự động gửi hoàn trả tiền lại cho tất cả những người đã từng đóng góp."
+"Giải thích điều gì xảy ra khi tôi sửa một ký tự trong địa chỉ ví người nhận rồi bấm gửi trên MetaMask. Giao dịch này có bị trừ phí gas không?"
 
 **AI trả về:**  
-AI đã sinh một đoạn mã sử dụng một mảng `address[] public contributors` và trong hàm `refundAll()`, AI dùng vòng lặp `for (uint i = 0; i < contributors.length; i++)` để thực hiện lệnh chuyển ETH `payable(contributors[i]).transfer(...)` lần lượt cho từng người trong danh sách.
+AI trả lời rằng giao dịch sẽ được gửi lên mạng lưới Ethereum, nhưng các node/thợ đào khi kiểm tra thấy địa chỉ không hợp lệ sẽ hủy giao dịch (revert) và người gửi vẫn bị mất một khoản phí gas tối thiểu 21,000 gas cho công sức xác thực của mạng lưới.
 
-**Đánh giá:** ❌ Sai, bỏ (Phạm phải mẫu nguy hiểm nghiêm trọng trong lập trình Smart Contract)
+**Đánh giá:** ❌ Sai, bỏ
 
 **Chỗ sai:**  
-1. **Lỗi vượt hạn mức Gas (Gas Limit DoS):** Nếu chiến dịch có số lượng người ủng hộ lớn (ví dụ: vài trăm đến hàng nghìn sinh viên), vòng lặp duyệt qua toàn bộ mảng sẽ tiêu tốn lượng gas vượt quá giới hạn gas của một block Ethereum (`Block Gas Limit` ~30M gas). Khi đó, giao dịch hoàn tiền sẽ **luôn luôn bị revert do hết gas (Out of Gas)**, dẫn tới toàn bộ số tiền bị kẹt vĩnh viễn trong hợp đồng và không ai nhận lại được tiền!
-2. **Lỗi từ chối dịch vụ có chủ đích (DoS with Unexpected Revert):** Chỉ cần một địa chỉ ví người nhận trong mảng là một hợp đồng thông minh không có hàm `receive()` hoặc cố tình `revert`, toàn bộ giao dịch của vòng lặp sẽ bị dừng và hoàn tác, làm tê liệt việc hoàn tiền cho tất cả mọi người khác.
-3. **Vi phạm quy ước `AGENTS.md`:** Dùng hàm cấm `transfer` thay vì cú pháp an toàn `call{value: ...}("")`.
+AI nhầm lẫn giữa lỗi thực thi trên chuỗi (On-chain execution failure) với cơ chế kiểm tra định dạng tại giao diện người dùng (Client-side validation). Địa chỉ Ethereum có cơ chế phân biệt chữ hoa/chữ thường theo chuẩn **EIP-55 Checksum**. Khi sửa 1 ký tự, MetaMask phát hiện ngay lập tức chuỗi địa chỉ không hợp lệ về mặt checksum toán học và hiển thị cảnh báo đỏ *"Recipient address is invalid"* hoặc vô hiệu hóa nút Next/Confirm. Giao dịch hoàn toàn **chưa được ký và chưa được broadcast lên mempool**, nên người dùng **không mất bất kỳ khoản phí gas nào**.
 
 **Cách sửa:**  
-Sinh viên bác bỏ hoàn toàn thiết kế "Push Payment" của AI. Chuyển sang mô hình chuẩn công nghiệp **Pull over Push (Withdrawal Pattern)**: Hợp đồng KHÔNG bao giờ dùng vòng lặp để đẩy tiền. Thay vào đó, mỗi người ủng hộ tự chủ động kết nối ví và gọi hàm cá nhân `claimRefund()`. Ai gọi thì hợp đồng tính toán và hoàn tiền cho người đó. Phí gas của ai người đó trả, cô lập hoàn toàn rủi ro giữa các người dùng.
+Sinh viên đối chiếu trực tiếp trên tiện ích MetaMask và tài liệu kỹ thuật EIP-55, đính chính lại cơ chế bảo vệ 2 lớp của ví và giải thích rõ sự khác biệt giữa lỗi Client-side (chặn trước khi phát mạng) và lỗi On-chain (đã phát mạng và tiêu tốn gas).
 
-**Ai phát hiện:** Sinh viên phát hiện (Dựa trên kiến thức về Gas và giới hạn Block trong bài Lab 7).
-
----
-
-## Lần 2 — Phản biện Mô hình Kinh tế (Sử dụng Prompt chuẩn I.6)
-
-**Prompt (Mẫu I.6):**  
-"Bạn là nhà đầu tư thận trọng đang xem xét dự án này. Dưới đây là mô tả quy tắc kinh tế của dự án HCE Student Crowdfund (Gây quỹ sinh viên có hoàn tiền). Hãy nêu 5 điểm yếu nghiêm trọng nhất, xếp theo mức rủi ro giảm dần. Với mỗi điểm, nêu một tình huống cụ thể mà người dùng bị thiệt hại. Không cần đề xuất giải pháp, tôi muốn nghe phần phê bình.  
-[Nội dung SPEC.md và ECONOMIC_RULES.md]"
-
-**AI trả về (Tóm tắt 5 phản biện):**  
-1. *Rủi ro 1:* Chủ dự án tạo tài khoản phụ tự đóng góp phần còn thiếu sát giờ G để đạt 100% mục tiêu, sau đó rút sạch tiền của những người ủng hộ thật (Self-pledge Rug Pull).
-2. *Rủi ro 2:* Chủ dự án cài đặt thời hạn chiến dịch quá dài (ví dụ: vài năm) khiến tiền của sinh viên bị phong tỏa, không thể kích hoạt hoàn tiền.
-3. *Rủi ro 3:* Không có mức đóng góp sàn, kẻ phá hoại có thể gửi hàng nghìn giao dịch siêu nhỏ để spam rác dữ liệu on-chain.
-4. *Rủi ro 4:* Nếu chiến dịch thất bại nhưng chủ dự án không kích hoạt kết thúc thì người dùng có bị giam tiền không?
-5. *Rủi ro 5:* Lỗ hổng tái nhập (Reentrancy) khi người dùng gọi hàm rút tiền hoàn trả.
-
-**Đánh giá:** ✅ Dùng được rất tốt (Cung cấp các góc nhìn phòng vệ kinh tế và bảo mật sâu sắc).
-
-**Chỗ cần hoàn thiện và Quyết định của nhóm:**  
-- **Về Rủi ro 1 (Self-pledge):** Nhóm chấp nhận đây là rủi ro kinh tế của mô hình All-or-Nothing. Tuy nhiên, kẻ gian phải chịu rủi ro chôn vốn thật của chính mình. Nhóm quyết định bổ sung cơ chế định danh Off-chain thông qua email sinh viên `@hce.edu.vn` để ràng buộc trách nhiệm pháp lý thực tế.
-- **Về Rủi ro 2 (Thời hạn vô lý):** Nhóm bổ sung quy tắc khóa cứng trong hợp đồng: thời gian chiến dịch tối thiểu 3 ngày, tối đa 30 ngày. Không ai có thể thiết lập ngoài khoảng này.
-- **Về Rủi ro 3 (Spam bụi):** Đặt ngưỡng `minContribution = 0.001 ETH`.
-- **Về Rủi ro 4 (Chủ quan Creator):** Logic chuyển trạng thái hoàn tiền được viết dựa trên thời gian khối `block.timestamp > deadline` mà không cần phụ thuộc vào bất kỳ hàm bấm nút nào của Creator.
-- **Về Rủi ro 5 (Reentrancy):** Áp dụng nghiêm ngặt mẫu Checks-Effects-Interactions (trừ số dư `contributions[msg.sender] = 0` trước khi `call{value: ...}("")`).
-
-**Ai phát hiện:** Công cụ AI nêu phản biện sắc bén $\rightarrow$ Nhóm sinh viên thảo luận, quyết định chính sách kinh tế và giải pháp kỹ thuật cụ thể.
+**Ai phát hiện:** Sinh viên phát hiện (khi thực hành kiểm thử Tình huống A trên MetaMask).
 
 ---
 
-## Lần 3 — Rà soát Quy ước AGENTS.md khi thiết kế Hợp đồng lõi
-
+## Lần 2
 **Prompt:**  
-"Hãy viết khung hợp đồng Solidity cho dự án Gây quỹ có hoàn tiền theo đặc tả trên. Hãy dùng modifier `onlyOwner` và hàm `transfer` để chuyển tiền."
+"Nếu ví tôi có đúng 0.01 ETH và tôi nhập số tiền chuyển là 0.01 ETH thì mạng lưới có tự động cấn trừ phí gas vào 0.01 ETH đó để chuyển số còn lại cho người nhận không?"
 
 **AI trả về:**  
-AI đã sinh mã sử dụng cú pháp cũ:
-```solidity
-payable(msg.sender).transfer(amount);
-```
-và sử dụng chuỗi lỗi dài:
-```solidity
-require(block.timestamp >= deadline, "Chien dich chua ket thuc, khong the rut tien");
-```
+AI cho rằng cơ chế của blockchain tương tự như ngân hàng truyền thống hoặc cổng thanh toán, mạng lưới sẽ tự trừ phí giao dịch vào khoản tiền chuyển nên người nhận sẽ nhận được `0.01 ETH - Gas Fee`.
 
-**Đánh giá:** ❌ Sai, vi phạm quy ước nội bộ `AGENTS.md`
+**Đánh giá:** ⚠️ Phải sửa
 
 **Chỗ sai:**  
-1. Vi phạm Điều 4 trong `AGENTS.md`: "Chuyển ETH bằng `call{value: ...}("")` và kiểm tra kết quả; không dùng `transfer`." Hàm `transfer` bị gán cứng giới hạn 2,300 gas, sẽ bị lỗi nếu ví nhận là Smart Contract Wallet (như Safe hoặc ví sinh viên dùng Account Abstraction).
-2. Vi phạm Điều 5 trong `AGENTS.md`: "Dùng `error` tùy biến thay cho chuỗi thông báo dài trong `require`." Chuỗi lỗi string dài làm tăng kích thước bytecode của contract và tiêu tốn gas của người dùng khi deploy và revert.
-3. Không phát sự kiện `event` khi thay đổi trạng thái theo Điều 1 của `AGENTS.md`.
+Mô hình giao dịch Ethereum quy định `Total Cost = Value + (Gas Limit * Gas Price)`. Số tiền chuyển (Value) và phí gas là hai khoản độc lập. Phí gas bắt buộc phải được người gửi chi trả thêm từ đồng tiền gốc (ETH) của ví gửi, không tự động cấn trừ vào Value của lệnh chuyển ETH thông thường. Do đó, MetaMask sẽ báo lỗi `Insufficient funds for gas * price + value` và không cho phép thực hiện nếu không còn số dư ETH để trả phí.
 
 **Cách sửa:**  
-Sinh viên chủ động yêu cầu AI tuân thủ tuyệt đối `AGENTS.md`:
-- Đổi toàn bộ chuỗi require sang `custom error` kèm tham số: `revert CampaignStillActive(deadline - block.timestamp);`.
-- Đổi lệnh chuyển tiền sang: `(bool ok, ) = payable(recipient).call{value: amount}(""); require(ok, "Transfer failed");`.
-- Bổ sung phát `emit RefundClaimed(...)` và `emit FundsClaimed(...)`.
+Sinh viên sửa lại giải thích nghiệp vụ kế toán tài sản số: Doanh nghiệp muốn chuyển đủ giá trị định mức cho đối tác thì phải duy trì số dư gốc lớn hơn giá trị chuyển để chi trả chi phí mạng riêng biệt.
 
-**Ai phát hiện:** Sinh viên phát hiện (Đối chiếu trực tiếp với tệp quy ước `AGENTS.md`).
+**Ai phát hiện:** Sinh viên phát hiện.
 
 ---
 
-## Lần 4 — Rà soát An toàn Reentrancy theo Lối đặt Câu hỏi Dẫn dắt (Lab 13 - Mẫu I.4)
+# NHẬT KÝ LÀM VIỆC VỚI AI — Lab 3: Đọc Giao dịch và Hợp đồng trên Etherscan
 
-**Prompt (Mẫu I.4 chuẩn Sổ tay thực hành):**  
-"Bạn là kiểm toán viên hợp đồng thông minh.  
-Đừng đưa mã sửa ngay. Hãy giải thích từng bước điều gì xảy ra khi hàm withdraw() dưới đây được gọi bởi một hợp đồng có hàm receive().  
-Sau đó nêu 2 cách khắc phục và so sánh ưu nhược điểm của từng cách.  
-[Mã nguồn VulnerableBank.sol]"
-
-**AI trả về (Tóm tắt):**  
-1. **Phân tích cơ chế tái nhập (Reentrancy Callback Loop):**  
-   - Bước 1: Kẻ tấn công gọi `withdraw()`, hàm kiểm tra `balance > 0` thành công.  
-   - Bước 2: Hợp đồng gửi ETH bằng lệnh `call{value: balance}("")`. Khi địa chỉ nhận là contract, EVM tự động chuyển giao quyền điều khiển sang hàm `receive()` của hợp đồng nhận.  
-   - Bước 3: Trong `receive()`, kẻ tấn công viết lệnh gọi ngược lại chính hàm `withdraw()` của ngân hàng.  
-   - Bước 4: Do dòng cập nhật sổ sách `balances[msg.sender] = 0;` nằm ở phía sau lệnh `call`, số dư của kẻ tấn công vẫn còn nguyên vẹn trên sổ sách! Vòng lặp đệ quy tiếp tục diễn ra cho đến khi ngân hàng hết tiền hoặc hết gas.  
-   - Bước 5: Cuối cùng, hàm mới hoàn tất các lệnh gán số dư về 0 trong call stack, nhưng ngân hàng đã trống rỗng!
-2. **Hai cách khắc phục:**  
-   - *Cách 1:* Checks-Effects-Interactions (CEI) — Đổi vị trí dòng `balances[msg.sender] = 0;` lên trước lệnh `call{value}`.  
-   - *Cách 2:* Khóa chống gọi lại `nonReentrant` (ReentrancyGuard của OpenZeppelin).
-
-**Đánh giá:** ✅ Dùng được rất tốt (Câu lệnh ép "Đừng đưa mã sửa ngay" đã buộc AI giải thích bản chất kế toán và luồng thực thi thay vì chỉ đưa code sửa).
-
-**Chỗ cần chú ý và Quyết định của nhóm:**  
-- **Vấn đáp trọng tâm:** Sinh viên nhận thức sâu sắc rằng: *"Thứ chặn được tấn công ở cách 1 là thứ tự các dòng lệnh (ghi sổ trước khi chi tiền), không phải bất kỳ một từ khóa hay thư viện nào"*.  
-- **Quyết định cho đồ án:** Nhóm áp dụng **chiến lược phòng thủ hai lớp (Defense-in-depth)** cho hợp đồng cốt lõi `ProjectCore.sol`:  
-  1. Luôn tuân thủ tuyệt đối quy tắc CEI trong `claimRefund()` và `claimFunds()`.  
-  2. Bổ sung thêm modifier `nonReentrant` nội bộ để khóa cứng mọi nỗ lực callback đệ quy, đảm bảo an toàn tuyệt đối mà vẫn giữ kích thước contract dưới 150 dòng (149 dòng).
-
-**Ai phát hiện:** Sinh viên chủ động dẫn dắt bằng Prompt I.4 $\rightarrow$ AI giải mã chi tiết luồng EVM $\rightarrow$ Sinh viên viết kịch bản thực nghiệm kiểm chứng thành công tại `test/test_lab13_hardening.py`.
-
----
-
-## Lần 5 — Xử lý Báo cáo Audit Chéo (Lab 14)
-
+## Lần 3
 **Prompt:**  
-"Dưới đây là 3 điểm mà Nhóm 4 đã phản hồi về hợp đồng ProjectCore.sol của chúng tôi. Hãy phân tích xem điểm nào là hiểu nhầm về quy tắc kinh tế của mô hình All-or-Nothing, điểm nào là lỗi cần sửa, và đề xuất mã tối ưu sự kiện CampaignCreated mà không làm hợp đồng vượt quá 150 dòng."
+"Tôi đang mở hợp đồng USDC tại địa chỉ 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48 trên Etherscan. Hãy chỉ cho tôi cách đọc tổng cung `totalSupply()` trong tab Read Contract."
 
 **AI trả về:**  
-AI phân loại chính xác:
-1. Ý kiến của Nhóm 4 về việc 'cho phép rút tiền trước hạn khi đạt mục tiêu' là vi phạm nguyên tắc bảo chứng All-or-Nothing; nhóm cần giữ nguyên điều kiện qua hạn chót mới cho rút tiền để bảo vệ người ủng hộ.
-2. Đề xuất bổ sung tham số `fundingCap` và `deadline` vào sự kiện `CampaignCreated` để DApp lắng nghe và hiển thị trực tiếp mà không cần nhiều cuộc gọi view.
-3. Mã cập nhật vẫn giữ hợp đồng ở mức 149 dòng.
+AI hướng dẫn: "Bạn hãy vào tab Contract -> chọn tab Read Contract, tìm hàm số 5 có tên là `totalSupply()` và bấm Query để đọc tổng cung của USDC."
 
-**Đánh giá:** ✅ Dùng được rất tốt. Nhóm đã tiếp thu và tối ưu hóa hợp đồng thành công.
+**Đánh giá:** ❌ Sai, bỏ
+
+**Chỗ sai:**  
+AI không nhận diện được kiến trúc hợp đồng thực tế của USDC là một **Upgradeable Proxy (chuẩn EIP-1967)**. Tại tab "Read Contract" thông thường của địa chỉ proxy `0xA0b86...`, Etherscan chỉ hiển thị các hàm quản trị proxy (`admin`, `implementation`, `upgradeTo`), hoàn toàn **không có hàm `totalSupply()` hay bất kỳ hàm nghiệp vụ ERC-20 nào**.  
+Nếu làm theo AI, người dùng sẽ không tìm thấy hàm cần đọc.
+
+**Cách sửa:**  
+Sinh viên phát hiện đây là mô hình Proxy, chủ động chọn tab con **Read as Proxy** (hoặc truy cập thẳng vào địa chỉ Implementation Contract được chỉ định trong proxy) để Etherscan nạp đúng ABI của logic token, từ đó mới gọi được hàm `totalSupply()`.
+
+**Ai phát hiện:** Sinh viên phát hiện (đối chiếu trực tiếp trên Etherscan).
 
 ---
 
-## Lần 6 — Tích hợp Giao diện Web DApp và Bắt Lỗi Custom Error (Lab 15)
+# NHẬT KÝ LÀM VIỆC VỚI AI — Lab 4: Nhận diện Hợp đồng có Rủi ro
 
+## Lần 4
 **Prompt:**  
-"Tôi muốn tạo giao diện Web DApp kết nối MetaMask bằng Ethers.js v6 cho hợp đồng ProjectCore.sol. Làm thế nào để bắt các Custom Errors của Solidity ^0.8.20 (như ExceedsMaxContribution, ContributionTooLow, OnlyCreatorAllowed) và hiển thị thông báo tiếng Việt lịch sự, thân thiện thay vì chuỗi lỗi kỹ thuật khó hiểu?"
+"Bạn là chuyên viên thẩm định rủi ro tài sản số.
+Dưới đây là mã nguồn một hợp đồng token:
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+
+contract ClubTokenA is ERC20 {
+    constructor() ERC20("Club Token A", "CTA") {
+        _mint(msg.sender, 1_000_000 * 10 ** decimals());
+    }
+}
+
+contract ClubTokenB is ERC20, Ownable {
+    constructor() ERC20("Club Token B", "CTB") Ownable(msg.sender) {
+        _mint(msg.sender, 1_000_000 * 10 ** decimals());
+    }
+
+    function mint(address to, uint256 amount) external onlyOwner {
+        _mint(to, amount);
+    }
+}
+
+contract ClubTokenC is ERC20, Ownable {
+    mapping(address => bool) public restricted;
+
+    constructor() ERC20("Club Token C", "CTC") Ownable(msg.sender) {
+        _mint(msg.sender, 1_000_000 * 10 ** decimals());
+    }
+
+    function setRestricted(address user, bool status) external onlyOwner {
+        restricted[user] = status;
+    }
+
+    function _update(address from, address to, uint256 value) internal override {
+        require(!restricted[from], "Dia chi bi han che");
+        super._update(from, to, value);
+    }
+}
+```
+Hãy liệt kê mọi quyền đặc biệt mà chủ sở hữu hợp đồng có thể thực hiện, và với mỗi quyền, nêu rõ:
+- Tên hàm và số dòng
+- Người nắm giữ token chịu rủi ro gì
+Chỉ trả lời dựa trên mã nguồn tôi cung cấp. Nếu không tìm thấy, nói là không tìm thấy."
 
 **AI trả về:**  
-AI đề xuất hàm phân tích lỗi `parseCustomError(error)` dựa trên việc kiểm tra chuỗi `error.data` hoặc `error.message` chứa tên của Custom Error tương ứng. Đồng thời gợi ý cấu trúc trạng thái UI, nút chọn nhanh số tiền và cơ chế đếm ngược thời gian thực.
+AI trả về danh sách phân tích:
+- Token A: Không có quyền đặc biệt sau triển khai.
+- Token B: Quyền `mint` ở dòng 18–20 cho phép chủ sở hữu in thêm token tùy ý, gây rủi ro lạm phát cho nhà đầu tư.
+- Token C: Quyền `setRestricted` ở dòng 30–32 cho phép chủ sở hữu đưa ví người dùng vào danh sách đen (Blacklist). AI giải thích: *"Đây là cơ chế Blacklist thông thường nhằm tuân thủ pháp lý tương tự như USDT và USDC để ngăn chặn tội phạm rửa tiền. Khi một ví bị đưa vào danh sách hạn chế, toàn bộ các giao dịch gửi và nhận token của ví đó sẽ bị khóa hoàn toàn."*
 
-**Chỗ sinh viên hoàn thiện:**  
-Sinh viên nhận thấy nếu mạng Sepolia bị quá tải hay nghẽn RPC trong lúc báo cáo 5 phút thì buổi thuyết trình sẽ gặp sự cố lớn. Vì vậy, sinh viên chủ động yêu cầu tích hợp thêm **Chế độ Demo 5 Phút (Offline Simulation)** trực tiếp trên giao diện để có thể chuyển đổi linh hoạt chỉ bằng một nút bấm.
+**Đánh giá:** ⚠️ Phải sửa
 
-**Ai phát hiện:** Sinh viên phát hiện rủi ro mạng và chủ động thiết kế chiến lược dự phòng rủi ro.
+**Chỗ sai:**  
+1. **Hiểu sai logic kỹ thuật tại dòng 35:**
+   `require(!restricted[from], "Dia chi bi han che");`
+   Điều kiện kiểm tra chỉ là `!restricted[from]`, nghĩa là **chỉ chặn chiều gửi đi (`from`), hoàn toàn không chặn chiều nhận vào (`to`)**. Kết luận của AI rằng *"khóa toàn bộ giao dịch gửi và nhận"* là sai lệch kỹ thuật nghiêm trọng.
+2. **Ngụy biện an toàn và bỏ qua bẫy Honeypot:**
+   Việc AI so sánh cơ chế này với tính năng tuân thủ pháp lý của USDT/USDC là một đánh giá sai lầm nguy hại dưới góc độ thẩm định rủi ro. Sự bất đối xứng ở dòng 35 chính là bản chất của **Mã độc Bẫy Honeypot** (cho phép người dùng mua/nhận token vào ví bình thường, nhưng khi người dùng muốn bán ra hoặc chuyển đi thì giao dịch bị revert).
+3. **Bỏ sót lỗi bảo mật và minh bạch:**
+   Hàm `setRestricted` ở dòng 30–32 thay đổi trạng thái trong storage nhưng hoàn toàn không phát ra `event`, khiến cộng đồng và các dApp không thể nhận diện được hành vi đóng băng trên sổ cái.
+
+**Cách sửa:**  
+Sinh viên đính chính lại cơ chế Honeypot chọn lọc 1 chiều (chặn `from`, mở `to`), ghi nhận số dòng chính xác làm bằng chứng thẩm định và cảnh báo đây là rủi ro gian lận ở mức cao nhất chứ không phải tính năng tuân thủ thông thường.
+
+**Ai phát hiện:** Sinh viên phát hiện (khi soi kỹ từng tham số của hàm `_update`).
+
+---
+
+## Lần 5
+**Prompt:**  
+"Hãy rà soát lại mã nguồn của `ClubTokenB` và `ClubTokenC` theo bộ quy chuẩn `AGENTS.md` của dự án ECO2432 (Solidity ^0.8.20, OpenZeppelin 5.x). Hãy chỉ rõ các điểm vi phạm quy tắc bắt buộc trong hợp đồng thông minh."
+
+**AI trả về:**  
+AI nhận định: Mã nguồn của cả hai hợp đồng đã hoàn toàn tuân thủ các quy tắc vì: (1) Sử dụng pragma Solidity `^0.8.20`; (2) Kế thừa chuẩn OpenZeppelin 5.x qua việc override hàm `_update` thay cho hook cũ `_beforeTokenTransfer`; (3) Các hàm nhạy cảm đều có modifier kiểm tra quyền hạn `onlyOwner`. Do đó hợp đồng không vi phạm quy tắc nào trong `AGENTS.md`.
+
+**Đánh giá:** ❌ Sai, bỏ
+
+**Chỗ sai:**  
+AI chỉ kiểm tra cú pháp hình thức bên ngoài mà bỏ sót 2 quy tắc bắt buộc cốt lõi được quy định rõ trong `AGENTS.md`:
+1. **Vi phạm Quy tắc 1 của `AGENTS.md`:** *"Mọi hàm làm thay đổi trạng thái phải phát ra một `event`."*  
+   - Hàm `setRestricted` (dòng 30–32 của `ClubTokenC`) làm thay đổi biến trạng thái `restricted` nhưng hoàn toàn không phát ra sự kiện nào.
+   - Hàm `mint` (dòng 18–20 của `ClubTokenB`) không phát sự kiện quản trị chuyên biệt nào ngoài sự kiện Transfer ngầm của thư viện.
+2. **Vi phạm Quy tắc 5 của `AGENTS.md`:** *"Dùng `error` tùy biến thay cho chuỗi thông báo dài trong `require`."*  
+   - Dòng 35 của `ClubTokenC` sử dụng chuỗi lỗi `require(!restricted[from], "Dia chi bi han che");` thay vì sử dụng cấu trúc `error` tùy biến để tiết kiệm chi phí gas và chuẩn hóa thông báo lỗi.
+
+**Cách sửa:**  
+Sinh viên trích dẫn lại 2 quy tắc trong `AGENTS.md`, chỉ ra số dòng vi phạm cụ thể trong mã nguồn, và tự thiết kế phiên bản hợp đồng an toàn `ClubTokensHardened.sol` khắc phục toàn bộ các vi phạm trên.
+
+**Ai phát hiện:** Sinh viên phát hiện (đối chiếu trực tiếp với các điều khoản trong `AGENTS.md`).
+
+---
+
+# NHẬT KÝ LÀM VIỆC VỚI AI — Lab 6: Sinh mã bằng AI và Kiểm tra Kết quả
+
+## Lần 6
+**Prompt:**  
+"Đọc tệp SPEC.md trong dự án và viết chương trình Python thực hiện đúng đặc tả đó. Tuân thủ các quy ước trong AGENTS.md. Trước khi viết mã, hãy tóm tắt lại cách bạn hiểu yêu cầu để tôi xác nhận."
+
+**AI trả về:**  
+AI tóm tắt lại bài toán nhưng khi sinh đoạn mã xử lý giao dịch thì viết như sau:
+```python
+for tx in transactions:
+    if tx.get("isError") == "1":
+        continue  # Giao dịch thất bại thì bỏ qua
+    # ... xử lý giao dịch thành công
+```
+
+**Đánh giá:** ❌ Sai, bỏ
+
+**Chỗ sai:**  
+AI đã bỏ qua hoàn toàn các giao dịch thất bại bằng lệnh `continue`.  
+Theo cơ chế máy ảo Ethereum và **Quy tắc R4 trong SPEC.md**: Khi một giao dịch gửi đi bị thất bại (`isError == "1"` và `from == target_address`), số tiền chuyển `value` đúng là không bị trừ, nhưng **toàn bộ chi phí gas mạng (`gasUsed * gasPrice`) vẫn bị trừ vĩnh viễn khỏi ví của người gửi**.  
+Nếu bỏ qua giao dịch này, số dư kế toán sẽ bị lệch so với số dư thực tế trên chuỗi, làm sai lệch báo cáo dòng tiền ra (Outflow) và kiểm toán AML.
+
+**Cách sửa:**  
+Sinh viên yêu cầu AI sửa lại nhánh điều kiện: Khi `isError == "1"` và `from.lower() == target_address.lower()`, ghi nhận loại giao dịch `OUT_FAILED` với giá trị chuyển $0 \text{ ETH}$ và dòng tiền ra bằng đúng chi phí gas mạng đã tiêu hao.
+
+**Ai phát hiện:** Sinh viên phát hiện (đối chiếu danh mục kiểm tra Mục 4 của Lab 6 và Quy tắc R4 trong `SPEC.md`).
+
+---
+
+## Lần 7
+**Prompt:**  
+"Hãy bổ sung cấu hình để chương trình kết nối và truy xuất dữ liệu từ mạng thử nghiệm Sepolia Testnet bằng Etherscan API."
+
+**AI trả về:**  
+AI sinh đoạn mã cấu hình như sau:
+```python
+API_KEY = "ABC123XYZ456"  # Hoặc điền key trực tiếp vào đây nếu không có biến môi trường
+if network == "sepolia":
+    base_url = "https://api-sepolia.etherscan.io/api"
+else:
+    base_url = "https://api.etherscan.io/api"
+```
+
+**Đánh giá:** ❌ Sai, bỏ
+
+**Chỗ sai:**  
+1. **Vi phạm nghiêm trọng Quy tắc 1 của `AGENTS.md` (Bảo mật khóa API):** AI gợi ý hardcode chuỗi API key dự phòng trực tiếp trong mã nguồn. Nếu đẩy lên GitHub, khóa này sẽ bị quét và thu hồi ngay lập tức.
+2. **Dùng endpoint API v1 đã cũ (Mục 6 danh mục kiểm tra):** AI sử dụng endpoint cũ `api-sepolia.etherscan.io`. Theo tài liệu Etherscan hiện hành, nền tảng đã chuyển dịch sang giao diện **API v2 Multichain Hợp nhất** (`https://api.etherscan.io/v2/api`), trong đó phân biệt các mạng bằng tham số `chainid` (`chainid=11155111` cho Sepolia, `chainid=1` cho Ethereum Mainnet). Dữ liệu huấn luyện của AI đã cũ nên tự động dùng endpoint phiên bản trước.
+
+**Cách sửa:**  
+- Sinh viên loại bỏ hoàn toàn mọi dòng hardcode API key, buộc chương trình chỉ đọc qua `os.environ.get("ETHERSCAN_API_KEY")`.
+- Cập nhật hàm gọi API sang chuẩn **Etherscan API v2 Multichain**, đồng thời bổ sung cờ dự phòng tương thích ngược.
+
+**Ai phát hiện:** Sinh viên phát hiện (đối chiếu tài liệu Etherscan API v2 và quy ước bảo mật trong `AGENTS.md`).
+
+---
+
+# NHẬT KÝ LÀM VIỆC VỚI AI — Lab 7: Tính Chi phí Vận hành Thực tế
+
+## Lần 8
+**Prompt:**  
+"Một câu lạc bộ sinh viên dự kiến phát hành thẻ tích điểm trên blockchain với 1.000 lượt cộng điểm/tháng. Đơn giá gas là 20 Gwei, giá ETH là 3.000 USD. Bạn hãy tư vấn lựa chọn mạng lưới blockchain triển khai phù hợp nhất cho dự án này."
+
+**AI trả về:**  
+AI tính toán chi phí gas ra khoảng 1.200 USD/tháng và đưa ra lời khuyên:  
+*"Bạn nên triển khai hợp đồng thẻ tích điểm trực tiếp trên Ethereum Mainnet (Layer 1) để đảm bảo mức độ bảo mật cao nhất, tính phi tập trung tuyệt đối và dữ liệu không thể bị giả mạo. Chi phí 1.200 USD/tháng (~30 triệu VNĐ) là mức chi phí vận hành hạ tầng công nghệ thông tin hoàn toàn hợp lý và xứng đáng cho một câu lạc bộ đại học."*
+
+**Đánh giá:** ❌ Sai, bỏ
+
+**Chỗ sai:**  
+AI hoàn toàn **thiếu cảm quan kinh tế vi mô (Economic Common Sense) và không hiểu bối cảnh tài chính thực tế**:  
+1. **Quy mô ngân sách câu lạc bộ sinh viên:** Quỹ hoạt động của một câu lạc bộ sinh viên thông thường chỉ dao động từ vài trăm nghìn đến vài triệu VNĐ/tháng. Việc phải chi trả từ 30.000.000 đến 76.000.000 VNĐ/tháng chỉ để duy trì việc ghi điểm thưởng sẽ khiến câu lạc bộ phá sản ngay tháng đầu tiên!  
+2. **Kinh tế học hành vi người dùng:** Nếu chuyển phần phí này cho sinh viên tự trả ($1,20 \text{ USD} \approx 30.500 \text{ VNĐ}$ cho mỗi lần quét mã cộng điểm), thì **chi phí giao dịch (Transaction Cost) cao gấp nhiều lần giá trị điểm thưởng hoặc ly nước**, chắc chắn 100% sinh viên sẽ tẩy chay sản phẩm.  
+3. **Mù mờ về giải pháp mở rộng Layer 2:** AI không đề xuất mạng Lớp 2 (Layer 2 Rollups: Base, Arbitrum, Optimism) với chi phí rẻ hơn 100 lần (chỉ còn $12 \text{ USD/tháng} \approx 300.000 \text{ VNĐ}$), hoặc kiến trúc Tài trợ gas (Paymaster / Account Abstraction ERC-4337) để mang lại trải nghiệm miễn phí gas cho sinh viên.
+
+**Cách sửa:**  
+Sinh viên bác bỏ đề xuất của AI, phân tích chi tiết bài toán kinh tế vi mô và kết luận: DApp thẻ tích điểm **bắt buộc phải triển khai trên Layer 2**, sử dụng Paymaster tài trợ phí từ quỹ CLB ($12 \text{ USD/tháng}$) để đạt tính khả thi thương mại.
+
+**Ai phát hiện:** Sinh viên phát hiện (phân tích tính khả thi kinh tế tại Bước 2 Lab 7).
+
 
