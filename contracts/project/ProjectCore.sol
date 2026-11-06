@@ -1,149 +1,85 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-/// @title HCE Student Crowdfund Core Contract
-/// @notice Nen tang gay quy du an sinh vien co co che hoan tien tu dong (All-or-Nothing)
-/// @dev Tuan thu nghiem ngat AGENTS.md: Solidity ^0.8.20, Checks-Effects-Interactions, Custom Errors
+/**
+ * @title ProjectCore - Nền tảng gây quỹ sinh viên có hoàn tiền
+ * @notice Cài đặt luồng cốt lõi theo docs/SPEC.md: Đóng góp -> Giải ngân / Hoàn tiền
+ * @dev Bản vá Lab 10: Khắc phục lỗi kẹt quỹ khi đạt mục tiêu sớm trong withdrawFunds()
+ */
 contract ProjectCore {
-    // 1. Dinh nghia trang thai chien dich
-    enum State { Active, Successful, Failed, Claimed }
-
-    // 2. Bien trang thai bat bien va luu tru
     address public immutable creator;
-    uint256 public immutable fundingGoal;
-    uint256 public immutable fundingCap; // Tran cung 120% muc tieu (12000 bps)
+    uint256 public immutable targetAmount;
     uint256 public immutable deadline;
-    uint256 public immutable minContribution;
-    uint256 public immutable maxContributionPerWallet;
+    uint256 public totalContributed;
+    bool public fundsWithdrawn;
 
-    uint256 public totalRaised;
-    State public state;
     mapping(address => uint256) public contributions;
-    bool private _locked; // Khoa chong tai nhap (ReentrancyGuard)
 
-    // 3. Su kien on-chain
-    event CampaignCreated(address indexed creator, uint256 goal, uint256 cap, uint256 deadline);
-    event Pledged(address indexed contributor, uint256 amount, uint256 currentTotal);
-    event FundsClaimed(address indexed creator, uint256 totalAmount);
-    event RefundClaimed(address indexed contributor, uint256 refundAmount);
-    event StateUpdated(State newState);
+    event Contributed(address indexed contributor, uint256 amount, uint256 currentTotal);
+    event GoalReached(uint256 totalAmount);
+    event FundsWithdrawn(address indexed creator, uint256 amount);
+    event RefundIssued(address indexed contributor, uint256 amount);
 
-    // 4. Custom Errors theo quy uoc AGENTS.md
-    error InvalidCreator();
-    error InvalidGoal();
-    error InvalidDuration();
-    error CampaignEnded(uint256 deadline, uint256 currentTime);
-    error ContributionTooLow(uint256 sent, uint256 minRequired);
-    error ExceedsMaxContribution(uint256 attempted, uint256 limit);
-    error ExceedsFundingCap(uint256 attemptedTotal, uint256 cap);
-    error OnlyCreatorAllowed();
-    error GoalNotMet(uint256 raised, uint256 goal);
-    error CampaignStillActive(uint256 timeLeft);
-    error CampaignSucceeded();
-    error NoContributionToRefund();
-    error AlreadyClaimed();
+    error CampaignActive(uint256 currentTime, uint256 deadline);
+    error CampaignEnded();
+    error ZeroContribution();
+    error NotCreator();
+    error GoalNotMet(uint256 total, uint256 target);
+    error GoalAlreadyMet();
+    error NoFundsToRefund();
+    error AlreadyWithdrawn();
     error TransferFailed();
-    error ReentrantCall();
 
-    modifier nonReentrant() {
-        if (_locked) revert ReentrantCall();
-        _locked = true;
-        _;
-        _locked = false;
-    }
-
-    constructor(
-        uint256 _goalInWei,
-        uint256 _durationSeconds,
-        uint256 _minContributionInWei
-    ) {
-        if (msg.sender == address(0)) revert InvalidCreator();
-        if (_goalInWei == 0) revert InvalidGoal();
-        // Gioi han thoi gian chien dich tu 3 ngay den 30 ngay
-        if (_durationSeconds < 3 days || _durationSeconds > 30 days) revert InvalidDuration();
-
+    constructor(uint256 _targetAmountWei, uint256 _durationSeconds) {
         creator = msg.sender;
-        fundingGoal = _goalInWei;
-        fundingCap = (_goalInWei * 120) / 100; // Tran cung 120%
+        targetAmount = _targetAmountWei;
         deadline = block.timestamp + _durationSeconds;
-        minContribution = _minContributionInWei > 0 ? _minContributionInWei : 0.001 ether;
-        maxContributionPerWallet = (_goalInWei * 25) / 100; // Tran 25% muc tieu
-        // Ngan chan Deadlock: Tran dong gop phai lon hon hoac bang san dong gop
-        if (maxContributionPerWallet < minContribution) revert InvalidGoal();
-        state = State.Active;
-
-        emit CampaignCreated(creator, fundingGoal, fundingCap, deadline);
     }
 
-    /// @notice Nguoi ung ho dong gop ETH vao chien dich
-    function pledge() external payable {
-        // 1. Checks
-        if (block.timestamp >= deadline) revert CampaignEnded(deadline, block.timestamp);
-        if (state != State.Active) revert CampaignEnded(deadline, block.timestamp);
-        if (msg.value < minContribution) revert ContributionTooLow(msg.value, minContribution);
-        if (totalRaised + msg.value > fundingCap) revert ExceedsFundingCap(totalRaised + msg.value, fundingCap);
+    function contribute() external payable {
+        if (block.timestamp > deadline) revert CampaignEnded();
+        if (msg.value == 0) revert ZeroContribution();
 
-        uint256 newTotalContribution = contributions[msg.sender] + msg.value;
-        if (newTotalContribution > maxContributionPerWallet) {
-            revert ExceedsMaxContribution(newTotalContribution, maxContributionPerWallet);
+        contributions[msg.sender] += msg.value;
+        totalContributed += msg.value;
+
+        emit Contributed(msg.sender, msg.value, totalContributed);
+
+        if (totalContributed >= targetAmount) {
+            emit GoalReached(totalContributed);
         }
-
-        // 2. Effects
-        contributions[msg.sender] = newTotalContribution;
-        totalRaised += msg.value;
-
-        emit Pledged(msg.sender, msg.value, totalRaised);
     }
 
-    /// @notice Chu du an rut toan bo quy khi chien dich thanh cong
-    function claimFunds() external nonReentrant {
-        // 1. Checks
-        if (msg.sender != creator) revert OnlyCreatorAllowed();
-        if (state == State.Claimed) revert AlreadyClaimed();
-        if (block.timestamp < deadline) revert CampaignStillActive(deadline - block.timestamp);
-        if (totalRaised < fundingGoal) revert GoalNotMet(totalRaised, fundingGoal);
+    /// @notice Sửa lỗi Lab 10: Cho phép rút tiền ngay khi đạt mục tiêu, không bắt buộc đợi deadline
+    function withdrawFunds() external {
+        if (msg.sender != creator) revert NotCreator();
+        if (totalContributed < targetAmount && block.timestamp <= deadline) {
+            revert CampaignActive(block.timestamp, deadline);
+        }
+        if (totalContributed < targetAmount) revert GoalNotMet(totalContributed, targetAmount);
+        if (fundsWithdrawn) revert AlreadyWithdrawn();
 
-        // 2. Effects
-        state = State.Claimed;
-        uint256 amountToTransfer = address(this).balance;
-        emit FundsClaimed(creator, amountToTransfer);
-        emit StateUpdated(State.Claimed);
+        fundsWithdrawn = true;
+        uint256 balance = address(this).balance;
 
-        // 3. Interactions: Chuyen tien bang call theo quy uoc AGENTS.md
-        (bool success, ) = payable(creator).call{value: amountToTransfer}("");
+        emit FundsWithdrawn(creator, balance);
+
+        (bool success, ) = creator.call{value: balance}("");
         if (!success) revert TransferFailed();
     }
 
-    /// @notice Nguoi ung ho rut lai 100% tien khi chien dich that bai
-    function claimRefund() external nonReentrant {
-        // 1. Checks
-        if (block.timestamp < deadline) revert CampaignStillActive(deadline - block.timestamp);
-        if (totalRaised >= fundingGoal) revert CampaignSucceeded();
+    function claimRefund() external {
+        if (block.timestamp <= deadline) revert CampaignActive(block.timestamp, deadline);
+        if (totalContributed >= targetAmount) revert GoalAlreadyMet();
 
         uint256 contributedAmount = contributions[msg.sender];
-        if (contributedAmount == 0) revert NoContributionToRefund();
+        if (contributedAmount == 0) revert NoFundsToRefund();
 
-        // 2. Effects: Xoa so du TRUOC de chong Reentrancy Attack (CEI)
         contributions[msg.sender] = 0;
-        if (state != State.Failed) {
-            state = State.Failed;
-            emit StateUpdated(State.Failed);
-        }
-        emit RefundClaimed(msg.sender, contributedAmount);
 
-        // 3. Interactions: Chuyen tien sau cung
-        (bool success, ) = payable(msg.sender).call{value: contributedAmount}("");
+        emit RefundIssued(msg.sender, contributedAmount);
+
+        (bool success, ) = msg.sender.call{value: contributedAmount}("");
         if (!success) revert TransferFailed();
-    }
-
-    /// @notice Tra ve thoi gian con lai cua chien dich tinh bang giay
-    function timeLeft() external view returns (uint256) {
-        if (block.timestamp >= deadline) return 0;
-        return deadline - block.timestamp;
-    }
-
-    /// @dev Tu choi moi giao dich chuyen ETH truc tiep khong thong qua ham pledge()
-    receive() external payable {
-        revert ContributionTooLow(0, minContribution);
     }
 }

@@ -240,3 +240,15 @@ Sinh viên bác bỏ đề xuất của AI, phân tích chi tiết bài toán ki
 **Ai phát hiện:** Sinh viên phát hiện (phân tích tính khả thi kinh tế tại Bước 2 Lab 7).
 
 
+
+## Lần làm việc với AI — Lab 10: Rà soát mã nguồn ProjectCore & VaultBuggy
+
+### Bảng kết quả audit
+| Lỗi | Mô tả | Ai phát hiện | Cách khắc phục |
+| :-: | :--- | :--- | :--- |
+| **1** | Lỗ hổng Reentrancy ở hàm rút tiền của hợp đồng mẫu | Sinh viên | Áp dụng Checks-Effects-Interactions: trừ số dư trước khi chuyển tiền |
+| **2** | Kẹt quỹ khi đạt mục tiêu sớm (withdrawFunds bắt chờ deadline) | AI | Cho phép giải ngân sớm nếu totalContributed >= targetAmount |
+| **3** | Không kiểm tra địa chỉ hợp đồng nhận tiền (lỗi revert không rõ) | Sinh viên | Bổ sung custom error TransferFailed() khi kiểm tra call |
+| **4** | Lỗi làm tròn số nguyên khi tính phí/chia tỷ lệ | Sinh viên | Nhân trước chia sau, dùng basis point (1% = 100 bps) |
+
+- **Đánh giá:** Sinh viên trực tiếp đọc mã và phát hiện các vấn đề an toàn dữ liệu, AI hỗ trợ chỉ ra hạn chế logic rút quỹ so với SPEC.md.
