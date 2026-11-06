@@ -85,3 +85,8 @@ Theo biên bản chính thức [`docs/GATE_REVIEW_1.md`](./GATE_REVIEW_1.md):
 - **Phân công xoay vai đã chốt:**
   - **Hoàng Mạnh Tường:** Chuyển sang chủ trì phát triển Hợp đồng, vá lỗi bảo mật và xây dựng Web3 Frontend DApp.
   - **Nguyễn Nguyên Phương:** Chuyển sang chủ trì Red Team Security (viết script/contract tấn công thực nghiệm Lab 13), phụ trách audit chéo Lab 14 và kịch bản thuyết trình Lab 15.
+
+## Phân công giai đoạn Lab 13 – 15 (Sau Gate Review 1)
+- **Lab 13 (Tấn công & Vá lỗi Reentrancy):** Phụ trách chính: Nguyễn Nguyên Phương (`kadiciara299-lab`).
+- **Lab 14 (Kiểm toán chéo codebase):** Phụ trách chính: Thành viên nhóm (`23k4300042-lang`).
+- **Lab 15 (Giao diện Web DApp & Triển khai):** Cả nhóm phối hợp hoàn thiện.
