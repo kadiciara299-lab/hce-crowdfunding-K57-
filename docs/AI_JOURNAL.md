@@ -252,3 +252,9 @@ Sinh viên bác bỏ đề xuất của AI, phân tích chi tiết bài toán ki
 | **4** | Lỗi làm tròn số nguyên khi tính phí/chia tỷ lệ | Sinh viên | Nhân trước chia sau, dùng basis point (1% = 100 bps) |
 
 - **Đánh giá:** Sinh viên trực tiếp đọc mã và phát hiện các vấn đề an toàn dữ liệu, AI hỗ trợ chỉ ra hạn chế logic rút quỹ so với SPEC.md.
+
+## Lần làm việc với AI — Lab 11: Cài quy tắc kinh tế vào sản phẩm
+- **Quy tắc cài đặt:** Đóng góp tối thiểu 0.001 ETH chống spam giao dịch.
+- **Mã lỗi:** `ContributionTooLow(uint256 sentAmount, uint256 minAmount)`.
+- **Kiểm thử:** Đã kiểm tra 1 ca vi phạm bị revert chính xác và 1 ca hợp lệ phát sự kiện thành công.
+- **Ai phát hiện / thiết kế:** Nhóm thiết kế dựa trên ECONOMIC_RULES.md.
