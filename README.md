@@ -95,3 +95,11 @@ hce-crowdfunding-K57-/
 | **Lab 14** | [`docs/AUDIT_REPORT.md`](./docs/AUDIT_REPORT.md)<br>[`Do An/lab14.md`](./Do%20An/lab14.md)<br>[`evidence/lab-14/`](./evidence/lab-14/)<br>[`test/test_audit_findings.py`](./test/test_audit_findings.py)<br>[`contracts/project/ProjectCore.sol`](./contracts/project/ProjectCore.sol) | Kiểm toán chéo bảo mật vòng tròn: Rà soát Nhóm 6 (phát hiện 4 lỗi: Reentrancy, Basis points, address(0), Event); tiếp nhận báo cáo từ Nhóm 4, giải trình nghiệp vụ và tối ưu `CampaignCreated` trong `ProjectCore.sol` (149 dòng) | ✅<br>**Hoàn thành** |
 | **Lab 15** | [`web/index.html`](./web/index.html)<br>[`Do An/lab15.md`](./Do%20An/lab15.md)<br>[`docs/PRESENTATION_PLAN.md`](./docs/PRESENTATION_PLAN.md)<br>[`evidence/lab-15/`](./evidence/lab-15/) | Xây dựng giao diện Web3 DApp chuyên nghiệp, chuẩn Responsive trên điện thoại di động; kết nối ví MetaMask trên Sepolia Testnet; tích hợp đầy đủ ABI và xử lý lỗi người dùng tiếng Việt thân thiện; hoàn tất kịch bản demo 5 phút phân vai từng giây | ✅<br>**Hoàn thành** |
 
+
+## Thông tin DApp & Bảng ánh xạ hợp đồng (Lab 15)
+| Thành phần | Giá trị của nhóm |
+| :--- | :--- |
+| **Địa chỉ contract (Sepolia)** | `0x079D25e34b13275942Eb404c39a02CFAA96D28D4` |
+| **ABI lấy từ đâu** | Remix IDE (Tab Solidity Compiler $\rightarrow$ Copy ABI của `ProjectCore.sol`) |
+| **Hàm đọc không tốn phí** | `goal()`, `totalRaised()`, `timeLeft()`, `contributions(address)` |
+| **Hàm ghi cần xác nhận ví** | `contribute()`, `claimFunds()`, `refund()` |
