@@ -9,7 +9,7 @@
   <style>
     :root {
       --bg-dark: #090d16;
-      --card-bg: rgba(17, 24, 39, 0.82);
+      --card-bg: rgba(17, 24, 39, 0.85);
       --border-glow: rgba(99, 102, 241, 0.28);
       --primary: #6366f1;
       --accent: #06b6d4;
@@ -26,35 +26,25 @@
       font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
       background-color: var(--bg-dark);
       background-image:
-        radial-gradient(at 15% 10%, rgba(99, 102, 241, 0.24) 0px, transparent 50%),
-        radial-gradient(at 85% 90%, rgba(6, 182, 212, 0.20) 0px, transparent 50%);
+        radial-gradient(at 15% 15%, rgba(99, 102, 241, 0.24) 0px, transparent 50%),
+        radial-gradient(at 85% 85%, rgba(6, 182, 212, 0.20) 0px, transparent 50%);
       color: var(--text-main);
       min-height: 100vh;
-      padding: 24px 14px;
       display: flex;
+      align-items: center;
       justify-content: center;
+      padding: 20px 14px;
     }
 
-    .wrapper {
+    .app-shell {
       width: 100%;
-      max-width: 960px;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
-      align-items: start;
-    }
-
-    @media (max-width: 820px) {
-      .wrapper { grid-template-columns: 1fr; max-width: 500px; }
-    }
-
-    .panel {
+      max-width: 480px;
       background: var(--card-bg);
       backdrop-filter: blur(18px);
       -webkit-backdrop-filter: blur(18px);
       border: 1px solid var(--border-glow);
       border-radius: 24px;
-      padding: 24px 22px;
+      padding: 26px 22px;
       box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.65);
     }
 
@@ -99,7 +89,7 @@
     }
 
     h1 {
-      font-size: 1.4rem;
+      font-size: 1.45rem;
       font-weight: 800;
       background: linear-gradient(135deg, #ffffff 0%, #a5b4fc 100%);
       -webkit-background-clip: text;
@@ -107,15 +97,8 @@
       margin-bottom: 6px;
     }
 
-    h2 {
-      font-size: 1.12rem;
-      font-weight: 800;
-      color: #f1f5f9;
-      margin-bottom: 6px;
-    }
-
     .subtitle {
-      font-size: 0.84rem;
+      font-size: 0.85rem;
       color: var(--text-muted);
       line-height: 1.45;
       margin-bottom: 18px;
@@ -320,231 +303,98 @@
 
     #status {
       margin-top: 14px;
-      padding: 12px 14px;
+      padding: 13px 14px;
       border-radius: 12px;
-      font-size: 0.83rem;
-      line-height: 1.45;
+      font-size: 0.84rem;
+      line-height: 1.5;
       word-break: break-word;
       display: none;
     }
 
     #status a { color: inherit; font-weight: 700; text-decoration: underline; }
     .info { background: rgba(6, 182, 212, 0.15); border: 1px solid rgba(6, 182, 212, 0.4); color: #67e8f9; }
-    .err  { background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); color: #fca5a5; }
+    .err  { background: rgba(239, 68, 68, 0.16); border: 1px solid rgba(239, 68, 68, 0.5); color: #fca5a5; }
     .ok   { background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); color: #6ee7b7; }
 
-    .case-list {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .case-item {
-      background: rgba(15, 23, 42, 0.65);
-      border: 1px solid rgba(148, 163, 184, 0.14);
-      border-radius: 14px;
-      padding: 12px 14px;
-    }
-
-    .case-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 5px;
-    }
-
-    .case-title {
-      font-size: 0.84rem;
-      font-weight: 700;
-      color: #f8fafc;
-    }
-
-    .tag-ok {
-      font-size: 0.68rem;
-      font-weight: 700;
-      padding: 2px 8px;
-      border-radius: 6px;
-      background: rgba(16, 185, 129, 0.16);
-      color: #34d399;
-      white-space: nowrap;
-    }
-
-    .tag-block {
-      font-size: 0.68rem;
-      font-weight: 700;
-      padding: 2px 8px;
-      border-radius: 6px;
-      background: rgba(239, 68, 68, 0.16);
-      color: #f87171;
-      white-space: nowrap;
-    }
-
-    .case-desc {
-      font-size: 0.78rem;
-      color: var(--text-muted);
-      line-height: 1.4;
-      margin-bottom: 8px;
-    }
-
-    .case-btn {
-      background: rgba(99, 102, 241, 0.16);
-      border: 1px solid rgba(99, 102, 241, 0.35);
-      color: #c7d2fe;
-      padding: 5px 10px;
-      border-radius: 8px;
-      font-size: 0.74rem;
-      font-weight: 700;
-      cursor: pointer;
-    }
-
-    .case-btn:hover { background: rgba(99, 102, 241, 0.32); color: #fff; }
-
     .footer-note {
-      margin-top: 14px;
+      margin-top: 16px;
       text-align: center;
-      font-size: 0.73rem;
+      font-size: 0.74rem;
       color: #64748b;
     }
   </style>
 </head>
 <body>
-  <div class="wrapper">
-    <!-- CỘT TRÁI: BẢNG ĐIỀU KHIỂN DAPP -->
-    <div class="panel">
-      <div class="header">
-        <span class="badge"><span class="dot"></span> Sepolia Testnet</span>
-        <span class="campaign-state" id="campaignState">⏳ Chưa tải trạng thái</span>
+  <div class="app-shell">
+    <div class="header">
+      <span class="badge"><span class="dot"></span> Sepolia Testnet</span>
+      <span class="campaign-state" id="campaignState">⏳ Chưa tải trạng thái</span>
+    </div>
+
+    <h1>Cổng Gây Quỹ Hoàn Tiền K57</h1>
+    <p class="subtitle">Hợp đồng thông minh minh bạch — Đạt mục tiêu mới giải ngân, hết hạn không đạt tự động mở hoàn tiền.</p>
+
+    <div class="wallet-bar">
+      <span id="walletAddress">Chưa kết nối ví MetaMask</span>
+      <button id="btnConnect" class="btn-connect" onclick="connectWallet()">Kết nối Ví</button>
+    </div>
+
+    <div class="stats-card">
+      <div class="progress-header">
+        <span class="progress-label">Tiến độ huy động vốn</span>
+        <span class="progress-pct" id="progressPct">0%</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progressBar"></div>
       </div>
 
-      <h1>Cổng Gây Quỹ Hoàn Tiền K57</h1>
-      <p class="subtitle">Đạt mục tiêu mới giải ngân cho chủ dự án; hết hạn không đạt tự động mở hoàn tiền 100% cho người góp.</p>
-
-      <div class="wallet-bar">
-        <span id="walletAddress">Chưa kết nối ví MetaMask</span>
-        <button id="btnConnect" class="btn-connect" onclick="connectWallet()">Kết nối Ví</button>
-      </div>
-
-      <div class="stats-card">
-        <div class="progress-header">
-          <span class="progress-label">Tiến độ huy động vốn</span>
-          <span class="progress-pct" id="progressPct">0%</span>
+      <div class="grid-2">
+        <div class="stat-box">
+          <div class="stat-title">Mục tiêu quỹ (Goal)</div>
+          <div class="stat-val" id="goalAmount">-- ETH</div>
         </div>
-        <div class="progress-track">
-          <div class="progress-fill" id="progressBar"></div>
+        <div class="stat-box">
+          <div class="stat-title">Đã huy động (Raised)</div>
+          <div class="stat-val" id="totalRaised" style="color: #34d399;">-- ETH</div>
         </div>
-
-        <div class="grid-2">
-          <div class="stat-box">
-            <div class="stat-title">Mục tiêu quỹ (Goal)</div>
-            <div class="stat-val" id="goalAmount">-- ETH</div>
-          </div>
-          <div class="stat-box">
-            <div class="stat-title">Đã huy động (Raised)</div>
-            <div class="stat-val" id="totalRaised" style="color: #34d399;">-- ETH</div>
-          </div>
-          <div class="stat-box">
-            <div class="stat-title">Thời gian còn lại</div>
-            <div class="stat-val" id="timeLeft">--</div>
-          </div>
-          <div class="stat-box">
-            <div class="stat-title">Đóng góp của bạn</div>
-            <div class="stat-val" id="myContribution" style="color: #a5b4fc;">-- ETH</div>
-          </div>
+        <div class="stat-box">
+          <div class="stat-title">Thời gian còn lại</div>
+          <div class="stat-val" id="timeLeft">--</div>
         </div>
-      </div>
-
-      <div class="action-card">
-        <div class="input-label">
-          <span>Số tiền muốn ủng hộ</span>
-          <span style="color: #64748b;">Mặc định: 1 ETH</span>
+        <div class="stat-box">
+          <div class="stat-title">Đóng góp của bạn</div>
+          <div class="stat-val" id="myContribution" style="color: #a5b4fc;">-- ETH</div>
         </div>
-        <div class="quick-pills">
-          <button type="button" class="pill" onclick="setAmount('0.002')">0.002 ETH</button>
-          <button type="button" class="pill" onclick="setAmount('0.01')">0.01 ETH</button>
-          <button type="button" class="pill" onclick="setAmount('0.05')">0.05 ETH</button>
-          <button type="button" class="pill" onclick="setAmount('1')">1 ETH</button>
-        </div>
-        <div class="input-wrap">
-          <input type="text" id="ethAmount" value="1" placeholder="Nhập số ETH..." />
-          <span class="unit-tag">ETH</span>
-        </div>
-        <button id="btnContribute" class="btn-main btn-contribute" onclick="contribute()">💸 Gửi tiền ủng hộ ngay</button>
-      </div>
-
-      <div class="secondary-actions">
-        <button id="btnClaim" class="btn-sub btn-claim" onclick="claimFunds()">🏦 Giải ngân (Creator)</button>
-        <button id="btnRefund" class="btn-sub btn-refund" onclick="refund()">↩️ Hoàn tiền (Thất bại)</button>
-      </div>
-
-      <div id="status"></div>
-
-      <div class="footer-note">
-        Contract: 0x079D...28D4 · Nguyễn Nguyên Phương & Hoàng Mạnh Tường
       </div>
     </div>
 
-    <!-- CỘT PHẢI: CÁC TÌNH HUỐNG NGHIỆP VỤ CỦA QUỸ -->
-    <div class="panel">
-      <div class="header">
-        <span class="badge" style="background: rgba(99,102,241,0.15); color: #a5b4fc; border-color: rgba(99,102,241,0.35);">📋 Kịch bản vận hành & Kiểm thử</span>
+    <div class="action-card">
+      <div class="input-label">
+        <span>Số tiền muốn ủng hộ</span>
+        <span style="color: #64748b;">Tối thiểu &gt; 0 ETH</span>
       </div>
-      <h2>Các tình huống xảy ra với quỹ</h2>
-      <p class="subtitle">Mọi quy tắc được thực thi tự động bởi mã nguồn <code>ProjectCore.sol</code>. Bấm nút thử nghiệm để kiểm chứng trực tiếp trên Sepolia:</p>
-
-      <div class="case-list">
-        <div class="case-item">
-          <div class="case-top">
-            <span class="case-title">1. Góp vốn hợp lệ trong thời hạn</span>
-            <span class="tag-ok">Hợp lệ · Thành công</span>
-          </div>
-          <p class="case-desc">Chưa hết 48h, quỹ chưa chạm mục tiêu và số tiền &gt; 0. Tiền được cộng vào quỹ và ghi nhận số dư từng ví.</p>
-          <button class="case-btn" onclick="setAmount('0.002'); contribute();">▶ Thử góp 0.002 ETH</button>
-        </div>
-
-        <div class="case-item">
-          <div class="case-top">
-            <span class="case-title">2. Giải ngân khi đạt mục tiêu (Creator)</span>
-            <span class="tag-ok">Hợp lệ · Đủ Goal</span>
-          </div>
-          <p class="case-desc">Khi <code>totalRaised &gt;= goal</code>, chỉ ví chủ dự án mới rút được toàn bộ quỹ (kể cả khi chưa hết 48h).</p>
-          <button class="case-btn" onclick="claimFunds()">▶ Thử gọi claimFunds()</button>
-        </div>
-
-        <div class="case-item">
-          <div class="case-top">
-            <span class="case-title">3. Hoàn tiền khi hết hạn &amp; thất bại</span>
-            <span class="tag-ok">Hợp lệ · Hết hạn</span>
-          </div>
-          <p class="case-desc">Qua 48h mà <code>totalRaised &lt; goal</code>, người đã góp tự gọi <code>refund()</code> để nhận lại 100% ETH đã đóng.</p>
-          <button class="case-btn" onclick="refund()">▶ Thử gọi refund()</button>
-        </div>
-
-        <div class="case-item">
-          <div class="case-top">
-            <span class="case-title">4. Cố tình góp 0 ETH hoặc góp dư mục tiêu</span>
-            <span class="tag-block">Bị chặn · Revert</span>
-          </div>
-          <p class="case-desc">Hợp đồng từ chối giao dịch 0 ETH (<code>ZeroAmount</code>) hoặc khi quỹ đã đủ mục tiêu (<code>GoalAlreadyMet</code>).</p>
-          <button class="case-btn" onclick="setAmount('0'); contribute();">▶ Thử vi phạm: Góp 0 ETH</button>
-        </div>
-
-        <div class="case-item">
-          <div class="case-top">
-            <span class="case-title">5. Rút tiền trái phép / Chưa đủ mục tiêu</span>
-            <span class="tag-block">Bị chặn · Revert</span>
-          </div>
-          <p class="case-desc">Người lạ gọi giải ngân bị chặn lỗi <code>NotCreator</code>; chủ dự án rút sớm khi chưa đủ mục tiêu bị chặn lỗi <code>GoalNotReached</code>.</p>
-        </div>
-
-        <div class="case-item">
-          <div class="case-top">
-            <span class="case-title">6. Đòi hoàn tiền sớm khi chưa hết 48 giờ</span>
-            <span class="tag-block">Bị chặn · Revert</span>
-          </div>
-          <p class="case-desc">Trong lúc chiến dịch đang chạy hoặc đã đạt mục tiêu, mọi lệnh rút ngang đều bị từ chối với lỗi <code>RefundNotAllowed</code>.</p>
-        </div>
+      <div class="quick-pills">
+        <button type="button" class="pill" onclick="setAmount('0.002')">0.002 ETH</button>
+        <button type="button" class="pill" onclick="setAmount('0.01')">0.01 ETH</button>
+        <button type="button" class="pill" onclick="setAmount('0.2')">0.2 ETH</button>
+        <button type="button" class="pill" onclick="setAmount('1')">1 ETH</button>
       </div>
+      <div class="input-wrap">
+        <input type="text" id="ethAmount" value="0.2" placeholder="Nhập số ETH..." />
+        <span class="unit-tag">ETH</span>
+      </div>
+      <button id="btnContribute" class="btn-main btn-contribute" onclick="contribute()">💸 Gửi tiền ủng hộ ngay</button>
+    </div>
+
+    <div class="secondary-actions">
+      <button id="btnClaim" class="btn-sub btn-claim" onclick="claimFunds()">🏦 Giải ngân (Creator)</button>
+      <button id="btnRefund" class="btn-sub btn-refund" onclick="refund()">↩️ Hoàn tiền (Thất bại)</button>
+    </div>
+
+    <div id="status"></div>
+
+    <div class="footer-note">
+      Contract: 0x079D...28D4 · Nguyễn Nguyên Phương & Hoàng Mạnh Tường
     </div>
   </div>
 
@@ -584,17 +434,34 @@
       el.innerHTML = msg;
     }
 
+    // Bộ phát hiện gian lận và giải mã lỗi từ Smart Contract
     function decodeContractError(e) {
       const raw = (e?.data || e?.message || e?.shortMessage || "").toString();
-      if (raw.includes("ZeroAmount")) return "Số tiền gửi phải lớn hơn 0 ETH (Lỗi: ZeroAmount).";
-      if (raw.includes("GoalAlreadyMet")) return "Chiến dịch đã đạt đủ mục tiêu, không nhận thêm đóng góp (Lỗi: GoalAlreadyMet).";
-      if (raw.includes("CampaignEnded")) return "Chiến dịch đã kết thúc hoặc quỹ đã được giải ngân (Lỗi: CampaignEnded).";
-      if (raw.includes("NotCreator")) return "Chỉ ví Chủ dự án (Creator) mới có quyền giải ngân (Lỗi: NotCreator).";
-      if (raw.includes("GoalNotReached")) return "Chưa đạt đủ mục tiêu gây quỹ nên chưa thể giải ngân (Lỗi: GoalNotReached).";
-      if (raw.includes("RefundNotAllowed")) return "Chưa hết 48 giờ hoặc dự án đã đạt mục tiêu nên không thể hoàn tiền (Lỗi: RefundNotAllowed).";
-      if (raw.includes("NoFundsToRefund")) return "Ví của bạn không có số dư đóng góp để hoàn tiền (Lỗi: NoFundsToRefund).";
-      if (raw.includes("insufficient funds")) return "Số dư Sepolia ETH trong ví của bạn không đủ để thực hiện giao dịch này.";
-      return e?.shortMessage || e?.message || "Giao dịch bị từ chối bởi hợp đồng.";
+      if (raw.includes("ZeroAmount")) {
+        return "🚨 CẢNH BÁO GIAN LẬN (ZeroAmount): Hệ thống phát hiện giao dịch góp 0 ETH! Mọi giao dịch đóng góp bắt buộc phải lớn hơn 0 ETH.";
+      }
+      if (raw.includes("GoalAlreadyMet")) {
+        return "🚨 CẢNH BÁO (GoalAlreadyMet): Quỹ đã đạt đủ mục tiêu cam kết, hợp đồng tự động khóa chức năng nhận thêm tiền để bảo vệ người góp.";
+      }
+      if (raw.includes("CampaignEnded")) {
+        return "🚨 CẢNH BÁO (CampaignEnded): Chiến dịch đã hết thời hạn 48 giờ hoặc quỹ đã được giải ngân.";
+      }
+      if (raw.includes("NotCreator")) {
+        return "🚨 CẢNH BÁO TRUY CẬP TRÁI PHÉP (NotCreator): Ví của bạn không phải Chủ dự án nên không có quyền rút quỹ!";
+      }
+      if (raw.includes("GoalNotReached")) {
+        return "🚨 CẢNH BÁO VI PHẠM QUY TẮC (GoalNotReached): Quỹ chưa đạt mục tiêu tối thiểu nên chủ dự án chưa được phép giải ngân.";
+      }
+      if (raw.includes("RefundNotAllowed")) {
+        return "🚨 CẢNH BÁO (RefundNotAllowed): Chưa hết hạn 48 giờ hoặc dự án đã đạt mục tiêu nên không thể yêu cầu hoàn tiền.";
+      }
+      if (raw.includes("NoFundsToRefund")) {
+        return "🚨 CẢNH BÁO (NoFundsToRefund): Ví của bạn chưa từng đóng góp hoặc đã rút hoàn tiền trước đó.";
+      }
+      if (raw.includes("insufficient funds")) {
+        return "⚠️ Số dư Sepolia ETH trong ví của bạn không đủ để thực hiện giao dịch này.";
+      }
+      return e?.shortMessage || e?.message || "Giao dịch bị từ chối bởi hợp đồng thông minh.";
     }
 
     async function connectWallet() {
@@ -678,9 +545,15 @@
     async function contribute() {
       if (!contract) return showStatus("Vui lòng bấm 'Kết nối Ví' trước!", "err");
       const rawVal = document.getElementById("ethAmount").value.trim().replace(",", ".");
-      if (!rawVal || isNaN(rawVal) || Number(rawVal) < 0) {
-        return showStatus("Vui lòng nhập số ETH hợp lệ.", "err");
+
+      // Phát hiện gian lận / nhập liệu không hợp lệ ngay tại giao diện
+      if (!rawVal || isNaN(rawVal) || Number(rawVal) <= 0) {
+        return showStatus(
+          "🚨 CẢNH BÁO GIAN LẬN / VI PHẠM: Hệ thống phát hiện bạn đang cố tình gửi giao dịch <b>0 ETH</b> (hoặc số âm). Giao dịch đã bị chặn tự động để bảo vệ quỹ!",
+          "err"
+        );
       }
+
       const btn = document.getElementById("btnContribute");
       try {
         btn.disabled = true;
@@ -691,7 +564,7 @@
         showStatus(`🎉 Ủng hộ thành công ${rawVal} ETH!<br>TxHash: <a href="https://sepolia.etherscan.io/tx/${tx.hash}" target="_blank">${tx.hash}</a>`, "ok");
         await loadData();
       } catch (e) {
-        showStatus("❌ Giao dịch bị chặn: " + decodeContractError(e), "err");
+        showStatus(decodeContractError(e), "err");
       } finally {
         btn.disabled = false;
         btn.innerText = "💸 Gửi tiền ủng hộ ngay";
@@ -709,10 +582,10 @@
         showStatus(`✅ Giải ngân thành công! TxHash: <a href="https://sepolia.etherscan.io/tx/${tx.hash}" target="_blank">${tx.hash}</a>`, "ok");
         await loadData();
       } catch (e) {
-        showStatus("❌ Bị từ chối giải ngân: " + decodeContractError(e), "err");
+        showStatus(decodeContractError(e), "err");
       } finally {
         btn.disabled = false;
-        btn.innerText = "�� Giải ngân (Creator)";
+        btn.innerText = "🏦 Giải ngân (Creator)";
       }
     }
 
@@ -727,7 +600,7 @@
         showStatus(`✅ Hoàn tiền thành công! TxHash: <a href="https://sepolia.etherscan.io/tx/${tx.hash}" target="_blank">${tx.hash}</a>`, "ok");
         await loadData();
       } catch (e) {
-        showStatus("❌ Bị từ chối hoàn tiền: " + decodeContractError(e), "err");
+        showStatus(decodeContractError(e), "err");
       } finally {
         btn.disabled = false;
         btn.innerText = "↩️ Hoàn tiền (Thất bại)";
