@@ -258,3 +258,8 @@ Sinh viên bác bỏ đề xuất của AI, phân tích chi tiết bài toán ki
 - **Mã lỗi:** `ContributionTooLow(uint256 sentAmount, uint256 minAmount)`.
 - **Kiểm thử:** Đã kiểm tra 1 ca vi phạm bị revert chính xác và 1 ca hợp lệ phát sự kiện thành công.
 - **Ai phát hiện / thiết kế:** Nhóm thiết kế dựa trên ECONOMIC_RULES.md.
+
+## Lần làm việc với AI — Lab 13: Thực nghiệm tấn công Reentrancy và Hardening
+- **Nhiệm vụ:** Mô phỏng tấn công Reentrancy bằng AttackBank, thiết kế bộ negative test cho ProjectCore.
+- **Quyết định của nhóm:** Áp dụng triệt để nguyên tắc Checks-Effects-Interactions cho claimRefund() để tối ưu gas.
+- **Ai phát hiện / ra quyết định:** Sinh viên phát hiện và trực tiếp cấu trúc lại thứ tự lệnh.
