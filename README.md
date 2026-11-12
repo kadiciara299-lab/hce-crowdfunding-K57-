@@ -103,3 +103,11 @@ hce-crowdfunding-K57-/
 | **ABI lấy từ đâu** | Remix IDE (Tab Solidity Compiler $\rightarrow$ Copy ABI của `ProjectCore.sol`) |
 | **Hàm đọc không tốn phí** | `goal()`, `totalRaised()`, `timeLeft()`, `contributions(address)` |
 | **Hàm ghi cần xác nhận ví** | `contribute()`, `claimFunds()`, `refund()` |
+
+## Thông tin DApp & Bảng ánh xạ hợp đồng (Lab 15)
+| Thành phần | Giá trị của nhóm |
+| :--- | :--- |
+| **Địa chỉ contract (Sepolia)** | `0x079D25e34b13275942Eb404c39a02CFAA96D28D4` |
+| **ABI lấy từ đâu** | Remix IDE (Tab Solidity Compiler $\rightarrow$ Copy ABI của `ProjectCore.sol`) |
+| **Hàm đọc không tốn phí** | `goal()`, `totalRaised()`, `timeLeft()`, `contributions(address)` |
+| **Hàm ghi cần xác nhận ví** | `contribute()`, `claimFunds()`, `refund()` |
