@@ -3,7 +3,7 @@ pragma solidity ^0.8.20;
 
 /**
  * @title ProjectCore - Nền tảng gây quỹ sinh viên có hoàn tiền
- * @notice Cài đặt quy tắc kinh tế theo docs/ECONOMIC_RULES.md cho Lab 11
+ * @notice Phiên bản hoàn thiện sau Cross-Audit Lab 14
  */
 contract ProjectCore {
     address public immutable creator;
@@ -12,8 +12,7 @@ contract ProjectCore {
     uint256 public totalContributed;
     bool public fundsWithdrawn;
 
-    // Quy tắc kinh tế Lab 11: Mức đóng góp tối thiểu 0.001 ETH (10^15 wei)
-    uint256 public constant MIN_CONTRIBUTION = 10**15;
+    uint256 public constant MIN_CONTRIBUTION = 10**15; // 0.001 ETH
 
     mapping(address => uint256) public contributions;
 
@@ -22,7 +21,7 @@ contract ProjectCore {
     event FundsWithdrawn(address indexed creator, uint256 amount);
     event RefundIssued(address indexed contributor, uint256 amount);
 
-    // Lỗi tùy biến
+    error InvalidParameters();
     error ContributionTooLow(uint256 sentAmount, uint256 minAmount);
     error CampaignActive(uint256 currentTime, uint256 deadline);
     error CampaignEnded();
@@ -34,14 +33,15 @@ contract ProjectCore {
     error TransferFailed();
 
     constructor(uint256 _targetAmountWei, uint256 _durationSeconds) {
+        if (_targetAmountWei == 0 || _durationSeconds == 0) revert InvalidParameters();
         creator = msg.sender;
         targetAmount = _targetAmountWei;
         deadline = block.timestamp + _durationSeconds;
     }
 
-    /// @notice Đóng góp tiền, bắt buộc tuân thủ quy tắc kinh tế MIN_CONTRIBUTION
     function contribute() external payable {
         if (block.timestamp > deadline) revert CampaignEnded();
+        if (fundsWithdrawn) revert AlreadyWithdrawn();
         if (msg.value < MIN_CONTRIBUTION) {
             revert ContributionTooLow(msg.value, MIN_CONTRIBUTION);
         }
@@ -56,7 +56,6 @@ contract ProjectCore {
         }
     }
 
-    /// @notice Chủ dự án rút tiền khi chiến dịch thành công
     function withdrawFunds() external {
         if (msg.sender != creator) revert NotCreator();
         if (totalContributed < targetAmount && block.timestamp <= deadline) {
@@ -74,7 +73,6 @@ contract ProjectCore {
         if (!success) revert TransferFailed();
     }
 
-    /// @notice Người góp rút lại tiền nếu dự án không đạt mục tiêu sau hạn chót
     function claimRefund() external {
         if (block.timestamp <= deadline) revert CampaignActive(block.timestamp, deadline);
         if (totalContributed >= targetAmount) revert GoalAlreadyMet();
