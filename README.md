@@ -99,7 +99,7 @@ hce-crowdfunding-K57-/
 ## Thông tin DApp & Bảng ánh xạ hợp đồng (Lab 15)
 | Thành phần | Giá trị của nhóm |
 | :--- | :--- |
-| **Địa chỉ contract (Sepolia)** | `0x079D25e34b13275942Eb404c39a02CFAA96D28D4` |
+| **Địa chỉ contract (Sepolia)** | `0x_DAN_DIA_CHI_HOP_DONG_MOI_1_ETH_VAO_DAY` |
 | **ABI lấy từ đâu** | Remix IDE (Tab Solidity Compiler $\rightarrow$ Copy ABI của `ProjectCore.sol`) |
 | **Hàm đọc không tốn phí** | `goal()`, `totalRaised()`, `timeLeft()`, `contributions(address)` |
 | **Hàm ghi cần xác nhận ví** | `contribute()`, `claimFunds()`, `refund()` |
@@ -107,7 +107,7 @@ hce-crowdfunding-K57-/
 ## Thông tin DApp & Bảng ánh xạ hợp đồng (Lab 15)
 | Thành phần | Giá trị của nhóm |
 | :--- | :--- |
-| **Địa chỉ contract (Sepolia)** | `0x079D25e34b13275942Eb404c39a02CFAA96D28D4` |
+| **Địa chỉ contract (Sepolia)** | `0x_DAN_DIA_CHI_HOP_DONG_MOI_1_ETH_VAO_DAY` |
 | **ABI lấy từ đâu** | Remix IDE (Tab Solidity Compiler $\rightarrow$ Copy ABI của `ProjectCore.sol`) |
 | **Hàm đọc không tốn phí** | `goal()`, `totalRaised()`, `timeLeft()`, `contributions(address)` |
 | **Hàm ghi cần xác nhận ví** | `contribute()`, `claimFunds()`, `refund()` |
