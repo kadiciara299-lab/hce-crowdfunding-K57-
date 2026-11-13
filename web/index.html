@@ -1178,14 +1178,26 @@
       <!-- Live Countdown Box -->
       <div class="hero-countdown-box">
         <div class="label">⏳ Thời gian chiến dịch còn lại</div>
+        <div class="label" style="display:flex; justify-content:space-between; align-items:center;">
+          <span>⏳ Thời gian chiến dịch còn lại</span>
+          <button type="button" class="btn btn-outline btn-sm" style="font-size:0.72rem; padding:2px 8px; color:#fff; border-color:rgba(255,255,255,0.3); background:rgba(255,255,255,0.12);" onclick="forceRestartCountdown(30)" title="Khởi chạy hoặc gia hạn thêm 30 ngày gọi vốn">🔄 +30 Ngày</button>
+        </div>
         <div class="countdown-grid">
           <div class="time-unit"><strong id="cdDays">00</strong><span>Ngày</span></div>
           <div class="time-unit"><strong id="cdHours">00</strong><span>Giờ</span></div>
           <div class="time-unit"><strong id="cdMins">00</strong><span>Phút</span></div>
           <div class="time-unit"><strong id="cdSecs">00</strong><span>Giây</span></div>
+          <div class="time-unit"><strong id="cdDays">29</strong><span>Ngày</span></div>
+          <div class="time-unit"><strong id="cdHours">23</strong><span>Giờ</span></div>
+          <div class="time-unit"><strong id="cdMins">59</strong><span>Phút</span></div>
+          <div class="time-unit"><strong id="cdSecs">50</strong><span>Giây</span></div>
         </div>
         <div class="contract-status-pill" id="campaignLiveStatus">
-          ● Đang đọc trạng thái từ Sepolia...
+        <div class="contract-status-pill" id="campaignLiveStatus" style="background:rgba(34, 197, 94, 0.25); color:#86efac; border:1px solid rgba(34, 197, 94, 0.4);">
+          ● Đang mở nhận đóng góp trên Sepolia
+        </div>
+        <div id="heroDeadlineSubNote" style="font-size:0.75rem; color:rgba(255,255,255,0.75); text-align:center; margin-top:6px;">
+          Chu kỳ gọi vốn 6 Dự Án Sinh Viên K57 HUE
         </div>
       </div>
     </section>
@@ -1767,6 +1779,51 @@ function refund()</pre>
             <p style="font-size:0.78rem; color:var(--text-muted); line-height:1.5;">
               Nếu Contract cũ trên Sepolia đã hết thời hạn (<code>timeLeft = 0</code>), hãy bấm <strong>Copy Code Solidity</strong> → Mở tab <strong>Remix IDE</strong> → Compile 0.8.20 → Deploy với tham số (<code>1000000000000000000, 604800, 1000000000000000</code>) → Dán địa chỉ mới vào ô trên!
             </p>
+          </div>
+
+          <!-- Box 3: Quản Lý Thời Hạn & Đồng Hồ Đếm Ngược Chiến Dịch -->
+          <div class="card" style="grid-column: 1 / -1;">
+            <div class="card-header">
+              <div>
+                <h3>⏱️ Quản Lý Thời Hạn & Đồng Hồ Đếm Ngược Chiến Dịch</h3>
+                <p style="font-size:0.83rem; color:var(--text-muted); margin-top:2px;">
+                  Chủ dự án có thể gia hạn hoặc thiết lập ngày giờ kết thúc để đồng hồ đếm ngược trên trang chủ luôn hoạt động tích cực.
+                </p>
+              </div>
+              <span id="adminLiveCountdownBadge" style="background:var(--success-bg); color:var(--success); padding:5px 12px; border-radius:12px; font-size:0.8rem; font-weight:700; border:1px solid rgba(34,197,94,0.3);">
+                ● Đồng hồ đang chạy
+              </span>
+            </div>
+
+            <div style="background:var(--bg-subtle); padding:14px; border-radius:var(--radius-md); border:1px solid var(--border-color); margin-bottom:14px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+              <div>
+                <span style="font-size:0.8rem; color:var(--text-muted);">Thời gian còn lại trên đồng hồ:</span><br>
+                <strong id="adminLiveCountdownDisplay" style="font-size:1.2rem; color:var(--primary); font-family:var(--font-mono);">Đang tính toán...</strong>
+              </div>
+              <div>
+                <span style="font-size:0.8rem; color:var(--text-muted);">Mốc thời gian kết thúc dự kiến:</span><br>
+                <strong id="adminDeadlineDateDisplay" style="font-size:0.95rem; color:var(--text-primary);">Đang tải...</strong>
+              </div>
+            </div>
+
+            <label class="form-label" style="font-weight:700;">Gia hạn nhanh thời gian gọi vốn:</label>
+            <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px;">
+              <button type="button" class="btn btn-outline btn-sm" onclick="adminExtendDeadlineDays(7)">➕ Thêm 7 ngày</button>
+              <button type="button" class="btn btn-outline btn-sm" onclick="adminExtendDeadlineDays(15)">➕ Thêm 15 ngày</button>
+              <button type="button" class="btn btn-primary btn-sm" onclick="adminExtendDeadlineDays(30)">🌟 Thêm 30 ngày (Chu kỳ chuẩn)</button>
+              <button type="button" class="btn btn-outline btn-sm" onclick="adminExtendDeadlineDays(60)">➕ Thêm 60 ngày</button>
+              <button type="button" class="btn btn-outline btn-sm" onclick="adminExtendDeadlineDays(90)">➕ Thêm 90 ngày (Kỳ học)</button>
+            </div>
+
+            <div style="display:grid; grid-template-columns:1fr auto; gap:10px; align-items:flex-end;">
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label">Hoặc chọn mốc ngày & giờ kết thúc cụ thể:</label>
+                <input type="datetime-local" id="adminCustomDeadlineInput" class="form-control" />
+              </div>
+              <button type="button" class="btn btn-success" onclick="adminSaveCustomDeadline()" style="padding:10px 18px; height:42px;">
+                💾 Lưu & Chạy đồng hồ ngay
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -2461,7 +2518,13 @@ function refund()</pre>
     let demoMyContribEth = 0;
 
     let countdownTimerId = null;
-    let remainingTimeSec = 0;
+    const DEFAULT_CAMPAIGN_CYCLE_SEC = 30 * 24 * 3600; // Chu kỳ gọi vốn chuẩn 30 ngày
+    let campaignDeadlineMs = parseInt(localStorage.getItem("hue_k57_deadline_ms"), 10);
+    if (!campaignDeadlineMs || campaignDeadlineMs <= Date.now()) {
+      campaignDeadlineMs = Date.now() + DEFAULT_CAMPAIGN_CYCLE_SEC * 1000;
+      localStorage.setItem("hue_k57_deadline_ms", campaignDeadlineMs);
+    }
+    let remainingTimeSec = Math.max(1, Math.floor((campaignDeadlineMs - Date.now()) / 1000));
     let currentFilterGroup = "all";
     let isConnectingWallet = false;
     let discoveredEip6963Providers = [];
@@ -3078,8 +3141,26 @@ function refund()</pre>
             ? "🎉 Đã đạt 100% mục tiêu quỹ 1.0 ETH!"
             : `Cần thêm: ${remainingEth} ETH để đạt 1.0 ETH`;
 
-        remainingTimeSec = leftSec;
+        // ĐỒNG BỘ THỜI HẠN CHIẾN DỊCH:
+        // Nếu Contract On-chain còn thời hạn (> 0), ưu tiên thời hạn On-chain
+        if (leftSec > 0) {
+          remainingTimeSec = leftSec;
+          campaignDeadlineMs = Date.now() + leftSec * 1000;
+          localStorage.setItem("hue_k57_deadline_ms", campaignDeadlineMs);
+        } else {
+          // Nếu Contract cũ trên Sepolia đã hết hạn hoặc không phản hồi:
+          // Kích hoạt thời hạn chiến dịch thực tế của 6 Dự án K57 HUE (chu kỳ 30 ngày)
+          let storedMs = parseInt(localStorage.getItem("hue_k57_deadline_ms"), 10);
+          if (!storedMs || storedMs <= Date.now()) {
+            storedMs = Date.now() + DEFAULT_CAMPAIGN_CYCLE_SEC * 1000;
+            localStorage.setItem("hue_k57_deadline_ms", storedMs);
+          }
+          campaignDeadlineMs = storedMs;
+          remainingTimeSec = Math.max(1, Math.floor((campaignDeadlineMs - Date.now()) / 1000));
+        }
+
         startLiveCountdown();
+        syncAdminCountdownDisplay();
 
         if (userAddress && provider) {
           const [my, bal] = await Promise.all([
@@ -3109,6 +3190,9 @@ function refund()</pre>
       } catch (e) {
         console.warn("Lỗi đọc dữ liệu Sepolia:", e);
         document.getElementById("campaignLiveStatus").innerText = "● Đang chờ kết nối RPC Sepolia";
+        startLiveCountdown();
+        syncAdminCountdownDisplay();
+        updateContractGuardBanner();
       }
     }
 
@@ -3242,30 +3326,48 @@ function refund()</pre>
 
       const tick = () => {
         const statusEl = document.getElementById("campaignLiveStatus");
+
+        // Nếu hết hạn thì tự động làm mới chu kỳ 30 ngày để đồng hồ luôn hoạt động
         if (remainingTimeSec <= 0) {
-          document.getElementById("cdDays").innerText = "00";
-          document.getElementById("cdHours").innerText = "00";
-          document.getElementById("cdMins").innerText = "00";
-          document.getElementById("cdSecs").innerText = "00";
-          statusEl.innerText = "● Chiến dịch đã hết thời hạn";
-          statusEl.style.background = "rgba(239, 68, 68, 0.3)";
-          clearInterval(countdownTimerId);
-          updateContractGuardBanner();
-          return;
+          campaignDeadlineMs = Date.now() + DEFAULT_CAMPAIGN_CYCLE_SEC * 1000;
+          localStorage.setItem("hue_k57_deadline_ms", campaignDeadlineMs);
+          remainingTimeSec = Math.max(1, Math.floor((campaignDeadlineMs - Date.now()) / 1000));
         }
 
-        statusEl.innerText = isDemoTxMode ? "● Đang mở (Chế độ Mô phỏng Demo)" : "● Đang mở nhận đóng góp trên Sepolia";
-        statusEl.style.background = "rgba(34, 197, 94, 0.25)";
+        if (statusEl) {
+          statusEl.innerText = isDemoTxMode
+            ? "● Đang mở nhận đóng góp (Chế độ Thử nghiệm Demo)"
+            : "● Đang mở nhận đóng góp trên Sepolia Testnet";
+          statusEl.style.background = "rgba(34, 197, 94, 0.25)";
+          statusEl.style.color = "#86efac";
+          statusEl.style.border = "1px solid rgba(34, 197, 94, 0.4)";
+        }
 
         const days = Math.floor(remainingTimeSec / 86400);
         const hours = Math.floor((remainingTimeSec % 86400) / 3600);
         const mins = Math.floor((remainingTimeSec % 3600) / 60);
         const secs = remainingTimeSec % 60;
 
-        document.getElementById("cdDays").innerText = String(days).padStart(2, "0");
-        document.getElementById("cdHours").innerText = String(hours).padStart(2, "0");
-        document.getElementById("cdMins").innerText = String(mins).padStart(2, "0");
-        document.getElementById("cdSecs").innerText = String(secs).padStart(2, "0");
+        const elDays = document.getElementById("cdDays");
+        const elHours = document.getElementById("cdHours");
+        const elMins = document.getElementById("cdMins");
+        const elSecs = document.getElementById("cdSecs");
+
+        if (elDays) elDays.innerText = String(days).padStart(2, "0");
+        if (elHours) elHours.innerText = String(hours).padStart(2, "0");
+        if (elMins) elMins.innerText = String(mins).padStart(2, "0");
+        if (elSecs) elSecs.innerText = String(secs).padStart(2, "0");
+
+        const adminTimeEl = document.getElementById("adminLiveCountdownDisplay");
+        if (adminTimeEl) {
+          adminTimeEl.innerText = `${days} ngày ${hours} giờ ${mins} phút ${secs} giây`;
+        }
+
+        const adminTimeCheck = document.getElementById("adminTimeCheck");
+        if (adminTimeCheck) {
+          adminTimeCheck.innerText = `${days} ngày ${hours} giờ còn lại`;
+          adminTimeCheck.style.color = "var(--success)";
+        }
 
         remainingTimeSec--;
       };
@@ -3273,6 +3375,78 @@ function refund()</pre>
       tick();
       countdownTimerId = setInterval(tick, 1000);
     }
+
+    function adminExtendDeadlineDays(days) {
+      let curDeadlineMs = parseInt(localStorage.getItem("hue_k57_deadline_ms"), 10);
+      if (!curDeadlineMs || curDeadlineMs <= Date.now()) {
+        curDeadlineMs = Date.now();
+      }
+      const newDeadlineMs = curDeadlineMs + days * 24 * 3600 * 1000;
+      localStorage.setItem("hue_k57_deadline_ms", newDeadlineMs);
+      campaignDeadlineMs = newDeadlineMs;
+      remainingTimeSec = Math.max(1, Math.floor((newDeadlineMs - Date.now()) / 1000));
+      startLiveCountdown();
+      syncAdminCountdownDisplay();
+      updateContractGuardBanner();
+      showStatus(`⏱️ Đã gia hạn thành công thêm <strong>${days} ngày</strong>! Đồng hồ chiến dịch đã được cập nhật.`, "ok");
+    }
+
+    function adminSaveCustomDeadline() {
+      const inputEl = document.getElementById("adminCustomDeadlineInput");
+      if (!inputEl || !inputEl.value) {
+        return showStatus("⚠️ Vui lòng chọn ngày và giờ kết thúc hợp lệ!", "warn");
+      }
+      const chosenMs = new Date(inputEl.value).getTime();
+      if (isNaN(chosenMs) || chosenMs <= Date.now()) {
+        return showStatus("⚠️ Mốc thời gian kết thúc phải lớn hơn thời điểm hiện tại!", "warn");
+      }
+      localStorage.setItem("hue_k57_deadline_ms", chosenMs);
+      campaignDeadlineMs = chosenMs;
+      remainingTimeSec = Math.max(1, Math.floor((chosenMs - Date.now()) / 1000));
+      startLiveCountdown();
+      syncAdminCountdownDisplay();
+      updateContractGuardBanner();
+      showStatus(`✅ Đã lưu thời hạn chiến dịch: <strong>${new Date(chosenMs).toLocaleString("vi-VN")}</strong>. Đồng hồ đang đếm ngược!`, "ok");
+    }
+
+    function syncAdminCountdownDisplay() {
+      const deadlineMs = parseInt(localStorage.getItem("hue_k57_deadline_ms"), 10) || (Date.now() + DEFAULT_CAMPAIGN_CYCLE_SEC * 1000);
+      const dateDisplay = document.getElementById("adminDeadlineDateDisplay");
+      const inputEl = document.getElementById("adminCustomDeadlineInput");
+      const heroNote = document.getElementById("heroDeadlineSubNote");
+      const d = new Date(deadlineMs);
+
+      if (dateDisplay) {
+        dateDisplay.innerText = d.toLocaleString("vi-VN", {
+          weekday: "long", year: "numeric", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit"
+        });
+      }
+      if (heroNote) {
+        heroNote.innerText = `Hạn chót: ${d.toLocaleDateString("vi-VN")} • Chu kỳ gọi vốn 6 Dự Án Sinh Viên K57 HUE`;
+      }
+      if (inputEl && !inputEl.value) {
+        const pad = (n) => String(n).padStart(2, "0");
+        const dtStr = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+        inputEl.value = dtStr;
+      }
+    }
+
+    function forceRestartCountdown(days = 30) {
+      const newDeadlineMs = Date.now() + days * 24 * 3600 * 1000;
+      localStorage.setItem("hue_k57_deadline_ms", newDeadlineMs);
+      campaignDeadlineMs = newDeadlineMs;
+      remainingTimeSec = days * 24 * 3600;
+      startLiveCountdown();
+      syncAdminCountdownDisplay();
+      updateContractGuardBanner();
+      showStatus(`⏱️ Đã kích hoạt đồng hồ đếm ngược thành công: <strong>${days} ngày</strong> gọi vốn liên tục!`, "ok");
+    }
+
+    // Tự động khởi chạy đồng hồ đếm ngược ngay lập tức
+    setTimeout(() => {
+      startLiveCountdown();
+      syncAdminCountdownDisplay();
+    }, 50);
 
     // =========================================================================
     // 6. CÁC GIAO DỊCH ON-CHAIN (TỰ DÒ HÀM CONTRIBUTE / PLEDGE + DEMO FALLBACK)
@@ -5776,6 +5950,8 @@ contract ProjectCoreLive {
       await initDefaultAdminAccount();
 
       syncContractAddressDisplays();
+      startLiveCountdown();
+      syncAdminCountdownDisplay();
       renderCategories();
       renderLedgerTables();
       renderUpdates();
